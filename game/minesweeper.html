@@ -3,9 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Minesweeper</title>
+    <link rel="stylesheet" href="../css/minesweeper.css">
 </head>
 <body>
-    
+    <div class="container">
+        <div class="scene" id="scene">
+            <div class="hud">
+                <h1>เกมล่าสมบัติ</h1>
+                <div class="game-info">
+                    <div class="info-item">
+                        <span class="label">กับดัก</span>
+                        <span id="mineCount">10</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">ปักธง</span>
+                        <span id="flagCount">0</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">เวลา</span>
+                        <span id="timer">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="board-area" id="boardArea">
+                <div class="game-board" id="gameBoard"></div>
+            </div>
+
+            <div id="gameStatus" class="game-status"></div>
+
+            <div id="resultOverlay" class="result-overlay" aria-hidden="true">
+                <div class="result-card">
+                    <div id="resultTitle" class="result-title">ค้นพบวัตถุดิบ!</div>
+                    <div id="resultScore" class="result-score">Score: 0</div>
+                    <button id="prizeBtn" class="prize-btn" type="button" aria-label="Collect prize">
+                        <img src="../assets/mine_Prize.png" alt="Prize">
+                        <span>เก็บวัตถุดิบ</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="newGameBtn" class="btn btn-primary">เริ่มใหม่</button>
+            <div class="difficulty">
+                <label for="difficulty">ระดับความยาก:</label>
+                <select id="difficulty">
+                    <option value="easy">ง่าย (8x8)</option>
+                    <option value="medium" selected>กลาง (10x10)</option>
+                    <option value="hard">ยาก (12x12)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/minesweeper/minesweeper.js"></script>
 </body>
 </html>
