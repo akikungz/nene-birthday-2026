@@ -1,0 +1,295 @@
+:root {
+    --bg: #0f1020;
+    --panel: rgba(255, 255, 255, 0.08);
+    --text: #f6f6ff;
+    --accent: #ffd34f;
+    --good: #6df5b1;
+    --danger: #ff7da8;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--text);
+    background:
+        radial-gradient(circle at top right, #2a1f4a 0%, transparent 45%),
+        radial-gradient(circle at top left, #1d3c66 0%, transparent 40%),
+        var(--bg);
+    display: grid;
+    place-items: center;
+    padding: 20px;
+}
+
+.game {
+    width: min(920px, 100%);
+    background: rgba(8, 10, 22, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    padding: 20px;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+}
+
+.header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+h1 {
+    margin: 0;
+    font-size: clamp(1.4rem, 3vw, 2.1rem);
+}
+
+.hud {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.chip {
+    background: var(--panel);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-weight: 600;
+}
+
+.chip strong {
+    color: var(--accent);
+}
+
+.controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.controls-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    border: 0;
+    border-radius: 12px;
+    padding: 10px 16px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1b1633;
+    background: linear-gradient(135deg, #ffe57e, #ffcb47);
+    cursor: pointer;
+    transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.04);
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+.select {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 9px 12px;
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.08);
+    font-size: 0.95rem;
+    font-weight: 600;
+    outline: none;
+}
+
+.select option {
+    color: #101326;
+    background: #ffffff;
+    font-weight: 600;
+}
+
+.select option:disabled {
+    color: #8b8fa4;
+}
+
+.select:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.status {
+    color: #d6daff;
+    font-weight: 600;
+}
+
+.board {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1980 / 1080;
+    border-radius: 14px;
+    overflow: hidden;
+    background: url("../assets/whack-a-mole/background_with_hole.png") center / cover no-repeat;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.board.show-hammer {
+    cursor: none;
+}
+
+.hammer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: clamp(64px, 8vw, 98px);
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    pointer-events: none;
+    user-select: none;
+    opacity: 0;
+    z-index: 1000;
+    transform: translate(-26%, -22%) rotate(18deg) scale(1);
+    transform-origin: 70% 26%;
+    transition: opacity 0.12s ease, transform 0.08s ease;
+    filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.32));
+}
+
+.board.show-hammer .hammer {
+    opacity: 1;
+}
+
+.hammer.swing {
+    transform: translate(-16%, -8%) rotate(-18deg) scale(0.94);
+}
+
+.hole-slot {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: var(--w);
+    height: var(--h);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.hole-hint {
+    position: absolute;
+    top: 6%;
+    left: 8%;
+    min-width: 1.5em;
+    padding: 0.08em 0.4em;
+    border-radius: 999px;
+    font-size: clamp(0.62rem, 1.2vw, 0.85rem);
+    line-height: 1.25;
+    font-weight: 700;
+    color: #fff7d6;
+    background: rgba(12, 14, 30, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    text-align: center;
+    pointer-events: none;
+    user-select: none;
+    z-index: 3;
+    transition: background-color 0.12s ease, color 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.hole-hint.key-active {
+    color: #221807;
+    background: #ffe17c;
+    border-color: rgba(255, 239, 166, 0.95);
+    box-shadow: 0 0 0 2px rgba(255, 224, 102, 0.28);
+    transform: scale(1.08);
+}
+
+.mole-btn {
+    position: absolute;
+    left: 50%;
+    bottom: 26%;
+    width: 74%;
+    aspect-ratio: 1 / 1;
+    border: 0;
+    background: transparent;
+    transform: translate(-50%, 165%);
+    transition: transform 0.2s ease, opacity 0.12s ease;
+    padding: 0;
+    cursor: pointer;
+    outline-offset: 4px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.mole-btn.active {
+    transform: translate(-50%, 0%);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.mole-btn.hit {
+    pointer-events: none;
+}
+
+.mole {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    pointer-events: none;
+    user-select: none;
+    filter: drop-shadow(0 12px 8px rgba(0, 0, 0, 0.38));
+}
+
+.mole-btn.hit .mole {
+    animation: mole-hit 0.2s ease;
+}
+
+@keyframes mole-hit {
+    0% {
+        transform: translateY(0) scale(1) rotate(0deg);
+    }
+    35% {
+        transform: translateY(-8%) scale(0.9) rotate(-8deg);
+    }
+    70% {
+        transform: translateY(-3%) scale(0.98) rotate(6deg);
+    }
+    100% {
+        transform: translateY(0) scale(1) rotate(0deg);
+    }
+}
+
+.status.good {
+    color: var(--good);
+}
+
+.status.danger {
+    color: var(--danger);
+}
+
+@media (max-width: 540px) {
+    .game {
+        padding: 14px;
+    }
+
+    .board {
+        border-radius: 10px;
+    }
+}
+
+@media (hover: none), (pointer: coarse) {
+    .board.show-hammer {
+        cursor: auto;
+    }
+}
