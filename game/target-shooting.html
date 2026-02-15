@@ -1,11 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+<meta charset="UTF-8">
+<title>Shooting Game</title>
+<link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    
+
+<div id="gameWrapper">
+    <div id="scoreHUD">
+        คะแนน: <span id="scoreDisplay">0</span><br>
+        High Score: <span id="highScoreDisplay">0</span>
+    </div>
+
+    <div id="livesHUD">
+        <span id="livesDisplay"></span>
+    </div>
+
+    <div id="gameArea"></div>
+
+    <div id="startScreen" class="screen">
+        <h1>Target Shooting</h1>
+        <button onclick="showTutorial()">เริ่มเกม</button>
+    </div>
+
+    <div id="tutorialScreen" class="screen" style="display:none;">
+        <h1>วิธีเล่น</h1>
+        <p>ยิงผักเพื่อรับคะแนน</p>
+        <p>ยิงอย่างอื่นเสียหัวใจ</p>
+        <p>หมดใจ = เกมจบนะจ๊ะ</p>
+        <button onclick="beginGame()">เริ่ม!</button>
+    </div>
+
+    <div id="gameOverScreen" class="screen" style="display:none;">
+        <h1>Game Over</h1>
+        <h2>Score: <span id="finalScore"></span></h2>
+
+        <h3>ประวัติการเล่น</h3>
+        <ul id="historyList"></ul>
+
+        <button onclick="startGame()">เล่นอีกครั้ง</button>
+    </div>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
