@@ -1,3 +1,35 @@
+/**
+ * Difficulty profile values that control mole timing.
+ * @typedef {Object} DifficultyPreset
+ * @property {string} label
+ * @property {number} moleMinTime
+ * @property {number} moleMaxTime
+ * @property {number} spawnInterval
+ */
+
+/**
+ * Hole placement percentages on the board background.
+ * @typedef {Object} HolePosition
+ * @property {number} x
+ * @property {number} y
+ * @property {number} w
+ * @property {number} h
+ */
+
+/**
+ * Runtime reference to the currently visible mole.
+ * @typedef {Object} CurrentHole
+ * @property {HTMLButtonElement} button
+ * @property {HTMLImageElement} mole
+ */
+
+/**
+ * Optional override values when ending a game early.
+ * @typedef {Object} StopGameOptions
+ * @property {string} [message]
+ * @property {"" | "good" | "danger"} [statusType]
+ */
+
 const ASSET_BASE = "../assets/whack-a-mole";
 
 const CHARACTERS = [
@@ -18,6 +50,8 @@ const KEYBOARD_GLOBAL_COOLDOWN_MS = 55;
 const KEYBOARD_PER_HOLE_COOLDOWN_MS = 90;
 const KEYBOARD_HAMMER_VISIBLE_MS = 180;
 const TOUCH_HAMMER_VISIBLE_MS = 220;
+
+/** @type {Record<string, DifficultyPreset>} */
 const DIFFICULTY_PRESETS = {
   easy: { label: "Easy", moleMinTime: 750, moleMaxTime: 1300, spawnInterval: 900 },
   normal: { label: "Normal", moleMinTime: 450, moleMaxTime: 1000, spawnInterval: 620 },
@@ -25,6 +59,7 @@ const DIFFICULTY_PRESETS = {
 };
 const DIFFICULTY_ORDER = ["easy", "normal", "hard"];
 
+/** @type {HolePosition[]} */
 const HOLE_POSITIONS = [
   { x: 20.9, y: 28.5, w: 20, h: 34 },
   { x: 12.2, y: 79.8, w: 19, h: 33 },
@@ -48,6 +83,7 @@ const bestStorageKey = "whack-a-mole-best";
 let score = 0;
 let timeLeft = GAME_DURATION;
 let running = false;
+/** @type {CurrentHole | null} */
 let currentHole = null;
 let clockTimer = null;
 let spawnTimer = null;
@@ -57,7 +93,9 @@ let activeDifficulty = DIFFICULTY_PRESETS.normal;
 let assetsReady = false;
 let assetsLoading = false;
 let preloadPromise = null;
+/** @type {Map<HTMLElement, number>} */
 const hintFlashTimers = new Map();
+/** @type {Map<number, number>} */
 const holeShortcutTimestamps = new Map();
 let lastKeyboardShortcutAt = 0;
 let hammerEl = null;
@@ -66,14 +104,29 @@ let hammerKeyboardHideTimer = null;
 let hammerTouchHideTimer = null;
 let pointerOverBoard = false;
 
+/**
+ * Returns a random integer in the inclusive range [min, max].
+ * @param {number} min
+ * @param {number} max
+ * @returns {number}
+ */
 function rand(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+/**
+ * Picks one character id from the available totem set.
+ * @returns {string}
+ */
 function pickCharacter() {
   return CHARACTERS[rand(0, CHARACTERS.length - 1)];
 }
 
+/**
+ * Updates status text and optional semantic color class.
+ * @param {string} message
+ * @param {"" | "good" | "danger"} [type=""]
+ */
 function setStatus(message, type = "") {
   statusEl.textContent = message;
   statusEl.classList.remove("good", "danger");
@@ -112,6 +165,11 @@ function getAllGameAssetPaths() {
   return paths;
 }
 
+/**
+ * Preload helper for one image path.
+ * @param {string} src
+ * @returns {Promise<string>}
+ */
 function loadImage(src) {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -283,6 +341,12 @@ function preloadGameAssets() {
   return preloadPromise;
 }
 
+/**
+ * Converts keyboard event into a hole number when possible.
+ * Supports top-row digits and numpad digits.
+ * @param {KeyboardEvent} event
+ * @returns {number | null}
+ */
 function getHoleNumberFromKeyEvent(event) {
   if (/^[1-9]$/.test(event.key)) {
     return Number(event.key);
@@ -319,6 +383,12 @@ function highlightHoleHint(holeNumber) {
   hintFlashTimers.set(hint, timerId);
 }
 
+/**
+ * Anti-spam guard for keyboard shortcuts.
+ * Applies both global and per-hole cooldown windows.
+ * @param {number} holeNumber
+ * @returns {boolean}
+ */
 function canTriggerHoleShortcut(holeNumber) {
   const now = performance.now();
   const lastForHole = holeShortcutTimestamps.get(holeNumber) || 0;
@@ -345,6 +415,10 @@ function isTypingTarget(target) {
   return target.isContentEditable || interactiveTags.includes(target.tagName);
 }
 
+/**
+ * Cycles difficulty select value by one step and updates status.
+ * @param {number} step
+ */
 function cycleDifficulty(step) {
   const currentKey = difficultyEl.value || "normal";
   const currentIndex = DIFFICULTY_ORDER.indexOf(currentKey);
@@ -522,6 +596,10 @@ function spawnMole() {
   }, rand(activeDifficulty.moleMinTime, activeDifficulty.moleMaxTime));
 }
 
+/**
+ * Stops all game loops and optionally overrides end-game message.
+ * @param {StopGameOptions} [options={}]
+ */
 function stopGame(options = {}) {
   const { message = "", statusType = "" } = options;
 
