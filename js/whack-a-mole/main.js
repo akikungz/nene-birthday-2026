@@ -44,6 +44,7 @@ const CHARACTERS = [
 ];
 
 const GAME_DURATION = 30;
+const REWARD_THRESHOLD_SCORE = 22;
 const HIT_ANIMATION_MS = 200;
 const HINT_KEY_ACTIVE_MS = 140;
 const KEYBOARD_GLOBAL_COOLDOWN_MS = 55;
@@ -77,8 +78,15 @@ const startBtn = document.getElementById("startBtn");
 const difficultyEl = document.getElementById("difficulty");
 const boardEl = document.getElementById("board");
 const hammerAsset = `${ASSET_BASE}/nene_punch.png`;
+const resultOverlay = document.getElementById("resultOverlay");
+const resultTitle = document.getElementById("resultTitle");
+const resultScore = document.getElementById("resultScore");
+const prizeBtn = document.getElementById("prizeBtn");
+const prizeBtnLabel = prizeBtn?.querySelector("span") || null;
 
 const bestStorageKey = "whack-a-mole-best";
+const rewardScoreStorageKey = "game_whack_a_mole_score";
+const rewardFinishStorageKey = "game_whack_a_mole_finish";
 
 let score = 0;
 let timeLeft = GAME_DURATION;
@@ -103,6 +111,7 @@ let hammerSwingTimer = null;
 let hammerKeyboardHideTimer = null;
 let hammerTouchHideTimer = null;
 let pointerOverBoard = false;
+let lastFinalScore = 0;
 
 /**
  * Returns a random integer in the inclusive range [min, max].
@@ -147,6 +156,37 @@ function getBestScore() {
 function setBestScore(value) {
   localStorage.setItem(bestStorageKey, String(value));
   bestEl.textContent = String(value);
+}
+
+function hideRewardOverlay() {
+  if (!resultOverlay) {
+    return;
+  }
+  resultOverlay.classList.remove("show");
+  resultOverlay.setAttribute("aria-hidden", "true");
+}
+
+function showRewardOverlay(finalScore) {
+  if (!resultOverlay || !resultTitle || !resultScore || !prizeBtn || !prizeBtnLabel) {
+    return;
+  }
+
+  const alreadyCollected = localStorage.getItem(rewardFinishStorageKey) === "true";
+  resultTitle.textContent = "Reward unlocked!";
+  resultScore.textContent = `Score: ${finalScore} (Need > ${REWARD_THRESHOLD_SCORE})`;
+
+  if (alreadyCollected) {
+    prizeBtn.classList.add("collected");
+    prizeBtn.disabled = true;
+    prizeBtnLabel.textContent = "Reward already collected";
+  } else {
+    prizeBtn.classList.remove("collected");
+    prizeBtn.disabled = false;
+    prizeBtnLabel.textContent = "Claim Reward";
+  }
+
+  resultOverlay.classList.add("show");
+  resultOverlay.setAttribute("aria-hidden", "false");
 }
 
 function getSelectedDifficulty() {
@@ -610,6 +650,8 @@ function stopGame(options = {}) {
   hideCurrentMole();
   startBtn.disabled = !assetsReady;
   difficultyEl.disabled = false;
+  lastFinalScore = score;
+  localStorage.setItem(rewardScoreStorageKey, String(lastFinalScore));
 
   const best = getBestScore();
   if (score > best) {
@@ -619,6 +661,12 @@ function stopGame(options = {}) {
     setStatus(message, statusType);
   } else {
     setStatus(`Time's up! Final score: ${score}. Try again!`);
+  }
+
+  if (lastFinalScore > REWARD_THRESHOLD_SCORE) {
+    showRewardOverlay(lastFinalScore);
+  } else {
+    hideRewardOverlay();
   }
 }
 
@@ -636,6 +684,7 @@ function startGame() {
   score = 0;
   timeLeft = GAME_DURATION;
   running = true;
+  hideRewardOverlay();
   holeShortcutTimestamps.clear();
   lastKeyboardShortcutAt = 0;
   startBtn.disabled = true;
@@ -689,6 +738,34 @@ function init() {
   });
 
   document.addEventListener("keydown", handleGameKeydown);
+
+  if (resultOverlay) {
+    resultOverlay.addEventListener("click", () => {
+      hideRewardOverlay();
+    });
+  }
+
+  if (prizeBtn) {
+    prizeBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      if (running || lastFinalScore <= REWARD_THRESHOLD_SCORE) {
+        return;
+      }
+
+      const alreadyCollected = localStorage.getItem(rewardFinishStorageKey) === "true";
+      if (alreadyCollected) {
+        return;
+      }
+
+      localStorage.setItem(rewardFinishStorageKey, "true");
+      prizeBtn.classList.add("collected");
+      prizeBtn.disabled = true;
+      if (prizeBtnLabel) {
+        prizeBtnLabel.textContent = "Reward claimed";
+      }
+    });
+  }
+
   preloadGameAssets();
 }
 

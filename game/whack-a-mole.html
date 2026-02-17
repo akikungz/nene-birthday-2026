@@ -31,6 +31,17 @@
         </div>
 
         <section class="board" id="board" aria-label="Whack a mole board"></section>
+
+        <div id="resultOverlay" class="result-overlay" aria-hidden="true">
+            <div class="result-card">
+                <div id="resultTitle" class="result-title">Reward unlocked!</div>
+                <div id="resultScore" class="result-score">Score: 0</div>
+                <button id="prizeBtn" class="prize-btn" type="button" aria-label="Collect reward">
+                    <img src="../assets/cake-reward/milk.png" alt="Reward">
+                    <span>Collect Reward</span>
+                </button>
+            </div>
+        </div>
     </main>
 
     <script src="../js/whack-a-mole/main.js" defer></script>
