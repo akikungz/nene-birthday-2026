@@ -3,9 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="stylesheet" href="../css/whack-a-mole.css">
+    <title>Nene Festival - Whack A Mole</title>
 </head>
 <body>
-    
+    <main class="game">
+        <div class="header">
+            <h1>Whack-a-Mole 🪵</h1>
+            <div class="hud">
+                <div class="chip">Score: <strong id="score">0</strong></div>
+                <div class="chip">Time: <strong id="time">30</strong>s</div>
+                <div class="chip">Best: <strong id="best">0</strong></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="controls-left">
+                <button class="btn" id="startBtn" type="button">Start Game</button>
+                <label for="difficulty" class="sr-only" style="position:absolute;left:-9999px;">Difficulty</label>
+                <select id="difficulty" class="select" aria-label="Select difficulty">
+                    <option value="easy">Easy</option>
+                    <option value="normal" selected>Normal</option>
+                    <option value="hard">Hard</option>
+                </select>
+            </div>
+            <div class="status" id="status">Press Start and bonk the totems!</div>
+        </div>
+
+        <section class="board" id="board" aria-label="Whack a mole board"></section>
+    </main>
+
+    <script src="../js/whack-a-mole/main.js" defer></script>
 </body>
 </html>
