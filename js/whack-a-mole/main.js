@@ -43,7 +43,7 @@ const CHARACTERS = [
   "tomato",
 ];
 
-const GAME_DURATION = 30;
+const GAME_DURATION = 142; // 2 Minutes and 22 Seconds is easter egg for Mikotomi Maneneko birthday date is 22nd February (22/02)
 const REWARD_THRESHOLD_SCORE = 22;
 const HIT_ANIMATION_MS = 200;
 const HINT_KEY_ACTIVE_MS = 140;
