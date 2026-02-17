@@ -1,10 +1,37 @@
+/**
+ * @typedef {number | 'M'} CellValue
+ * Represents a board cell value: 0-8 for adjacent mine count, or 'M' for mine.
+ */
+
+/** @typedef {CellValue[][]} BoardGrid */
+/** @typedef {boolean[][]} BooleanGrid */
+
+/**
+ * @typedef {Object} DifficultyConfig
+ * @property {number} rows
+ * @property {number} cols
+ * @property {number} mines
+ * @property {number} multiplier
+ */
+
+/**
+ * Main Minesweeper game state and game logic.
+ */
 class Minesweeper {
+    /**
+     * @param {number} [rows=10]
+     * @param {number} [cols=10]
+     * @param {number} [mines=40]
+     */
     constructor(rows = 10, cols = 10, mines = 40) {
         this.rows = rows;
         this.cols = cols;
         this.mines = mines;
+        /** @type {BoardGrid} */
         this.board = [];
+        /** @type {BooleanGrid} */
         this.revealed = [];
+        /** @type {BooleanGrid} */
         this.flagged = [];
         this.gameOver = false;
         this.gameLost = false;
@@ -44,7 +71,7 @@ class Minesweeper {
             }
         }
 
-    
+
         for (let r = 0; r < this.rows; r++) {
             for (let c = 0; c < this.cols; c++) {
                 if (this.board[r][c] !== 'M') {
@@ -54,6 +81,11 @@ class Minesweeper {
         }
     }
 
+    /**
+     * @param {number} row
+     * @param {number} col
+     * @returns {number}
+     */
     countAdjacentMines(row, col) {
         let count = 0;
         for (let r = row - 1; r <= row + 1; r++) {
@@ -66,6 +98,12 @@ class Minesweeper {
         return count;
     }
 
+    /**
+     * Reveal a tile and flood-fill empty neighbors.
+     * @param {number} row
+     * @param {number} col
+     * @returns {void}
+     */
     reveal(row, col) {
         if (this.gameOver) {
             return;
@@ -77,12 +115,12 @@ class Minesweeper {
             }
         }
 
-        
+
         if (this.firstClick) {
             this.firstClick = false;
-          
+
             if (this.board[row][col] === 'M') {
-               
+
                 for (let r = 0; r < this.rows; r++) {
                     for (let c = 0; c < this.cols; c++) {
                         if (this.board[r][c] === 'M' && (r !== row || c !== col)) {
@@ -111,7 +149,7 @@ class Minesweeper {
         }
 
         if (this.board[row][col] === 0) {
-          
+
             for (let r = row - 1; r <= row + 1; r++) {
                 for (let c = col - 1; c <= col + 1; c++) {
                     if (r >= 0 && r < this.rows && c >= 0 && c < this.cols) {
@@ -209,6 +247,7 @@ class Minesweeper {
 
 let game;
 
+/** @type {Record<string, DifficultyConfig>} */
 const difficulties = {
     easy: { rows: 8, cols: 8, mines: 10, multiplier: 1 },
     medium: { rows: 10, cols: 10, mines: 40, multiplier: 1.6 },
@@ -246,6 +285,18 @@ if (instantWinBtn) {
 }
 
 let lastScore = 0;
+const TOUCH_FLAG_HOLD_MS = 420;
+let suppressClickUntil = 0;
+
+/**
+ * Get a valid difficulty config from the selected dropdown value.
+ * Falls back to `medium` when value is unknown.
+ * @param {string} difficultyKey
+ * @returns {DifficultyConfig}
+ */
+function getDifficultyConfig(difficultyKey) {
+    return difficulties[difficultyKey] || difficulties.medium;
+}
 
 function updateInstantWinButtonVisibility() {
     if (!instantWinBtn) return;
@@ -268,7 +319,7 @@ function initializeGame() {
         game.timerInterval = null;
     }
     const difficulty = document.getElementById('difficulty').value;
-    const { rows, cols, mines, multiplier } = difficulties[difficulty];
+    const { rows, cols, mines, multiplier } = getDifficultyConfig(difficulty);
 
     game = new Minesweeper(rows, cols, mines);
     game.difficultyKey = difficulty;
@@ -344,6 +395,29 @@ function resetResultOverlay() {
     prizeBtn.disabled = false;
 }
 
+/**
+ * Reveal a cell and refresh UI.
+ * @param {number} row
+ * @param {number} col
+ */
+function revealCellAt(row, col) {
+    if (!game || game.gameOver) return;
+    game.reveal(row, col);
+    renderBoard();
+    updateGameStatus();
+}
+
+/**
+ * Toggle flag on a cell and refresh UI.
+ * @param {number} row
+ * @param {number} col
+ */
+function toggleFlagAt(row, col) {
+    if (!game || game.gameOver) return;
+    game.toggleFlag(row, col);
+    renderBoard();
+}
+
 function renderBoard() {
     boardElement.innerHTML = '';
 
@@ -358,6 +432,10 @@ function renderBoard() {
                 cell.classList.add('revealed');
                 if (game.board[r][c] === 'M') {
                     cell.classList.add('mine');
+                    // Keep a visual flag marker when this bomb chest was flagged.
+                    if (game.flagged[r][c]) {
+                        cell.classList.add('mine-flagged');
+                    }
                     cell.textContent = '';
                 } else if (game.board[r][c] > 0) {
                     cell.classList.add('safe');
@@ -372,20 +450,73 @@ function renderBoard() {
             }
 
             cell.addEventListener('click', () => {
-                if (!game.gameOver) {
-                    game.reveal(r, c);
-                    renderBoard();
-                    updateGameStatus();
-                }
+                if (Date.now() < suppressClickUntil) return;
+                revealCellAt(r, c);
             });
 
             cell.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
-                if (!game.gameOver) {
-                    game.toggleFlag(r, c);
-                    renderBoard();
-                }
+                if (Date.now() < suppressClickUntil) return;
+                toggleFlagAt(r, c);
             });
+
+            let touchHoldTimer = null;
+            let touchMoved = false;
+            let longPressTriggered = false;
+            let startX = 0;
+            let startY = 0;
+
+            cell.addEventListener('touchstart', (e) => {
+                if (!game || game.gameOver) return;
+                if (e.touches.length !== 1) return;
+
+                longPressTriggered = false;
+                touchMoved = false;
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+
+                touchHoldTimer = setTimeout(() => {
+                    longPressTriggered = true;
+                    suppressClickUntil = Date.now() + 700;
+                    toggleFlagAt(r, c);
+                }, TOUCH_FLAG_HOLD_MS);
+            }, { passive: true });
+
+            cell.addEventListener('touchmove', (e) => {
+                if (!touchHoldTimer || e.touches.length !== 1) return;
+                const dx = Math.abs(e.touches[0].clientX - startX);
+                const dy = Math.abs(e.touches[0].clientY - startY);
+                if (dx > 10 || dy > 10) {
+                    touchMoved = true;
+                    clearTimeout(touchHoldTimer);
+                    touchHoldTimer = null;
+                }
+            }, { passive: true });
+
+            cell.addEventListener('touchend', (e) => {
+                if (touchHoldTimer) {
+                    clearTimeout(touchHoldTimer);
+                    touchHoldTimer = null;
+                }
+
+                if (longPressTriggered || touchMoved) {
+                    e.preventDefault();
+                    return;
+                }
+
+                e.preventDefault();
+                suppressClickUntil = Date.now() + 500;
+                revealCellAt(r, c);
+            }, { passive: false });
+
+            cell.addEventListener('touchcancel', () => {
+                if (touchHoldTimer) {
+                    clearTimeout(touchHoldTimer);
+                    touchHoldTimer = null;
+                }
+                touchMoved = false;
+                longPressTriggered = false;
+            }, { passive: true });
 
             boardElement.appendChild(cell);
         }
