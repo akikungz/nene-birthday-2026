@@ -39,10 +39,12 @@ const gameOverScreen = document.getElementById("gameOverScreen");
 const finalScoreText = document.getElementById("finalScore");
 const livesDisplay = document.getElementById("livesDisplay");
 const scoreDisplay = document.getElementById("scoreDisplay");
+const timerDisplay = document.getElementById("timerDisplay");
 const highScoreDisplay = document.getElementById("highScoreDisplay");
 const historyList = document.getElementById("historyList");
 
 const gameName = "ShootingGame";
+const TIME_LIMIT_SECONDS = 2 * 60 + 22;
 
 let highScore = parseInt(
     localStorage.getItem(`game_${gameName}_maxScore`)
@@ -55,10 +57,14 @@ let MILK = false; //asset
 let score = 0;
 let lives = 3;
 let waveTimeout;
+let timerInterval;
 let spawnCount = 1;
 let nextLevelScore = 10;
 let zeroStartTime = null;
 let isPaused = false;
+let isGameOver = false;
+let gameStartTime = 0;
+let timeLeft = TIME_LIMIT_SECONDS;
 
 /**
  * Safely read score history from localStorage.
@@ -90,10 +96,15 @@ function beginGame() {
 function startGame() {
     gameArea.style.cursor = 'url("../assets/shooting/cursor2.png") 32 32, auto';
     zeroStartTime = null;
+    isGameOver = false;
 
     score = 0;
     lives = 3;
+    timeLeft = TIME_LIMIT_SECONDS;
     gameStartTime = Date.now();
+
+    clearTimeout(waveTimeout);
+    clearInterval(timerInterval);
 
     updateHUD();
 
@@ -101,12 +112,14 @@ function startGame() {
     startScreen.style.display = "none";
     gameOverScreen.style.display = "none";
 
+    startTimer();
     startWaveLoop();
 }
 
 /** Refresh score and hearts in the HUD. */
 function updateHUD() {
     scoreDisplay.textContent = score;
+    timerDisplay.textContent = formatTime(timeLeft);
     livesDisplay.innerHTML = "";
 
     for (let i = 0; i < lives; i++) {
@@ -115,6 +128,35 @@ function updateHUD() {
         heart.classList.add("heartIcon");
         livesDisplay.appendChild(heart);
     }
+}
+
+/**
+ * Convert seconds into mm:ss format.
+ * @param {number} totalSeconds
+ * @returns {string}
+ */
+function formatTime(totalSeconds) {
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
+/** Start the game countdown timer. */
+function startTimer() {
+    timerDisplay.textContent = formatTime(timeLeft);
+
+    timerInterval = setInterval(() => {
+        if (isGameOver || isPaused) {
+            return;
+        }
+
+        timeLeft = Math.max(0, timeLeft - 1);
+        timerDisplay.textContent = formatTime(timeLeft);
+
+        if (timeLeft <= 0) {
+            endGame();
+        }
+    }, 1000);
 }
 
 /**
@@ -150,6 +192,10 @@ function randomSpawnPosition() {
 
 /** Spawn one moving target (veggie or bait) and attach hit behavior. */
 function spawnTarget() {
+    if (isGameOver) {
+        return;
+    }
+
     const target = document.createElement("div");
     const isBait = Math.random() < 0.25;
 
@@ -256,6 +302,10 @@ function spawnTarget() {
 
 /** Start recurring wave generation every 2 seconds. */
 function startWaveLoop() {
+    if (isGameOver) {
+        return;
+    }
+
     if (!isPaused) {
         spawnWave();
     }
@@ -371,10 +421,18 @@ function showMilkReward() {
 
 /** Finalize run, persist score history, and show game-over UI. */
 function endGame() {
+    if (isGameOver) {
+        return;
+    }
+
+    isGameOver = true;
     localStorage.setItem(`game_${gameName}_finish`, "true");
 
     gameArea.style.cursor = "default";
     clearTimeout(waveTimeout);
+    clearInterval(timerInterval);
+    timeLeft = 0;
+    timerDisplay.textContent = formatTime(timeLeft);
 
     if (score > highScore) {
         highScore = score;
