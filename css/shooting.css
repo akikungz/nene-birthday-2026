@@ -1,19 +1,35 @@
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    --wood-shadow: 0 24px 50px rgba(6, 3, 1, 0.5);
+    --card-bg: linear-gradient(145deg, rgba(255, 250, 240, 0.95), rgba(255, 222, 183, 0.88));
+    --card-text: #4a2b0c;
+    --accent-1: #ff9f43;
+    --accent-2: #ff6f00;
+}
+
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
+    font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    background: radial-gradient(circle at top, #351a0a, #1a0b06 65%);
     overflow: hidden;
+    color: #1d130c;
 }
 
 #gameWrapper {
     position: relative;
     width: 100vw;
     height: 100vh;
+    border-radius: 0;
+    overflow: hidden;
+    box-shadow: var(--wood-shadow);
 }
 
 #gameArea {
     position: absolute;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     background-image: url("../assets/shooting/background.png");
     background-size: cover;
     background-position: center;
@@ -21,78 +37,189 @@ body {
     cursor: crosshair;
 }
 
+#gameArea::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(16, 8, 2, 0.15), rgba(16, 8, 2, 0.3));
+}
+
 .target {
     position: absolute;
-    width: 200px;
-    height: 200px;
+    width: clamp(120px, 14vw, 200px);
+    height: clamp(120px, 14vw, 200px);
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
     user-select: none;
+    z-index: 2;
+}
+
+#scoreHUD,
+#livesHUD {
+    position: absolute;
+    top: 2.5%;
+    z-index: 6;
+}
+
+#scoreHUD {
+    left: 3%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--card-bg);
+    color: var(--card-text);
+    padding: 12px 16px;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    box-shadow: 0 12px 24px rgba(36, 16, 5, 0.25);
+    backdrop-filter: blur(6px);
+    min-width: min(260px, 70vw);
+}
+
+#scoreHUD .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700;
+}
+
+#scoreHUD .label {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.7rem;
+    opacity: 0.75;
+}
+
+#scoreHUD .value {
+    font-weight: 800;
+    font-size: 1.1rem;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: linear-gradient(145deg, #fff5d6, #ffd9a8);
+    color: #6b3d0c;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85), 0 4px 10px rgba(36, 16, 5, 0.2);
+    min-width: 52px;
+    text-align: center;
+}
+
+#livesHUD {
+    right: 3%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(66, 25, 8, 0.65);
+    padding: 10px 14px;
+    border-radius: 999px;
+    box-shadow: 0 10px 20px rgba(20, 7, 2, 0.45);
+}
+
+.heartIcon {
+    width: clamp(40px, 5vw, 66px);
+    height: clamp(40px, 5vw, 66px);
 }
 
 .screen {
     position: absolute;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.7);
+    inset: 0;
+    background: rgba(8, 12, 20, 0.65);
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    color: white;
+    color: #2a1402;
     z-index: 10;
+    padding: 20px;
+}
+
+.screen-card {
+    width: min(620px, 92vw);
+    max-height: 85vh;
+    overflow: auto;
+    background: rgba(255, 250, 240, 0.95);
+    border-radius: 20px;
+    padding: 28px 34px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+}
+
+.screen h1 {
+    margin: 0;
+    font-size: clamp(1.5rem, 3.2vw, 2.2rem);
+    color: #2a1402;
+}
+
+.screen h2,
+.screen h3 {
+    margin: 0;
+    color: #5a2f0d;
 }
 
 #tutorialScreen p {
-    font-size: 22px;
-    margin: 10px 0;
-}
-
-.heartIcon {
-    width: 110px;
-    height: 110px;
-    margin-left: 10px;
-}
-
-#scoreHUD {
-    position: absolute;
-    top: 20px;
-    left: 30px;
-    font-size: 24px;
-    font-weight: bold;
-    color: white;
-    text-shadow: 2px 2px 6px black;
-    z-index: 5;
-}
-
-#livesHUD {
-    position: absolute;
-    top: 20px;
-    right: 40px;
-    font-size: 60px;
-    z-index: 5;
-    text-shadow: 2px 2px 8px black;
+    font-size: clamp(1rem, 2.2vw, 1.15rem);
+    margin: 2px 0;
+    color: #6a3a10;
+    font-weight: 700;
 }
 
 button {
-    font-size: 22px;
-    padding: 12px 30px;
+    align-self: center;
     border: none;
     border-radius: 10px;
-    background: #6cc24a;
-    color: white;
+    padding: 12px 28px;
+    font-size: 1rem;
+    font-weight: 700;
     cursor: pointer;
-    margin-top: 20px;
+    margin-top: 8px;
+    color: #2a1402;
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 button:hover {
-    background: #57a83b;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(255, 159, 67, 0.35);
 }
 
 #historyList {
-    max-height: 200px;
+    max-height: 210px;
     overflow-y: auto;
-    font-size: 18px;
+    font-size: 1rem;
     text-align: left;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#historyList li {
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: linear-gradient(145deg, #fff5d6, #ffd9a8);
+    color: #5e340d;
+    font-weight: 700;
+}
+
+@media (max-width: 768px) {
+    #scoreHUD {
+        min-width: auto;
+        width: 58vw;
+    }
+
+    #livesHUD {
+        top: auto;
+        bottom: 3%;
+        right: 3%;
+    }
+
+    .screen-card {
+        padding: 22px 18px;
+    }
 }

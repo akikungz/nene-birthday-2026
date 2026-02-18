@@ -10,8 +10,18 @@
 
 <div id="gameWrapper">
     <div id="scoreHUD">
-        คะแนน: <span id="scoreDisplay">0</span><br>
-        High Score: <span id="highScoreDisplay">0</span>
+        <div class="row">
+            <span class="label">คะแนน</span>
+            <span id="scoreDisplay" class="value">0</span>
+        </div>
+        <div class="row">
+            <span class="label">เวลา</span>
+            <span id="timerDisplay" class="value">02:22</span>
+        </div>
+        <div class="row">
+            <span class="label">High Score</span>
+            <span id="highScoreDisplay" class="value">0</span>
+        </div>
     </div>
 
     <div id="livesHUD">
@@ -21,26 +31,32 @@
     <div id="gameArea"></div>
 
     <div id="startScreen" class="screen">
-        <h1>Target Shooting</h1>
-        <button onclick="showTutorial()">เริ่มเกม</button>
+        <div class="screen-card">
+            <h1>Target Shooting</h1>
+            <button onclick="showTutorial()">เริ่มเกม</button>
+        </div>
     </div>
 
     <div id="tutorialScreen" class="screen" style="display:none;">
-        <h1>วิธีเล่น</h1>
-        <p>ยิงผักเพื่อรับคะแนน</p>
-        <p>ยิงอย่างอื่นเสียหัวใจ</p>
-        <p>หมดใจ = เกมจบนะจ๊ะ</p>
-        <button onclick="beginGame()">เริ่ม!</button>
+        <div class="screen-card">
+            <h1>วิธีเล่น</h1>
+            <p>ยิงผักเพื่อรับคะแนน</p>
+            <p>ยิงอย่างอื่นเสียหัวใจ</p>
+            <p>หมดใจ = เกมจบนะจ๊ะ</p>
+            <button onclick="beginGame()">เริ่ม!</button>
+        </div>
     </div>
 
     <div id="gameOverScreen" class="screen" style="display:none;">
-        <h1>Game Over</h1>
-        <h2>Score: <span id="finalScore"></span></h2>
+        <div class="screen-card">
+            <h1>Game Over</h1>
+            <h2>Score: <span id="finalScore"></span></h2>
 
-        <h3>ประวัติการเล่น</h3>
-        <ul id="historyList"></ul>
+            <h3>ประวัติการเล่น</h3>
+            <ul id="historyList"></ul>
 
-        <button onclick="startGame()">เล่นอีกครั้ง</button>
+            <button onclick="startGame()">เล่นอีกครั้ง</button>
+        </div>
     </div>
 </div>
 
