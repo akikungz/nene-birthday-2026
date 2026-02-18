@@ -14,26 +14,39 @@
     box-sizing: border-box;
 }
 
+html,
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
 body {
     margin: 0;
     min-height: 100vh;
     font-family: "Trebuchet MS", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     color: var(--text);
     background: var(--bg);
-    display: grid;
-    place-items: center;
-    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    padding: 0;
 }
 
 .game {
     position: relative;
-    width: min(980px, 100%);
+    width: min(1400px, 100vw);
+    max-width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+    display: flex;
+    flex-direction: column;
     background:
         radial-gradient(circle at top right, rgba(255, 185, 95, 0.16), transparent 34%),
         linear-gradient(165deg, rgba(73, 31, 10, 0.95), rgba(30, 13, 6, 0.96));
     border: 1px solid var(--edge);
-    border-radius: 24px;
-    padding: 20px;
+    border-radius: 0;
+    padding: clamp(8px, 1.2vw, 20px);
     box-shadow:
         0 22px 48px rgba(0, 0, 0, 0.42),
         inset 0 1px 0 rgba(255, 231, 194, 0.22);
@@ -234,8 +247,11 @@ h1 {
 
 .board {
     position: relative;
-    width: 100%;
-    aspect-ratio: 1980 / 1080;
+    width: min(100%, calc((100vh - 220px) * 16 / 9));
+    aspect-ratio: 16 / 9;
+    max-height: 100%;
+    min-height: 0;
+    margin-inline: auto;
     border-radius: 14px;
     overflow: hidden;
     background: url("../assets/whack-a-mole/background_with_hole.png") center / cover no-repeat;
@@ -377,11 +393,12 @@ h1 {
 
 @media (max-width: 540px) {
     .game {
-        padding: 14px;
+        padding: 10px;
     }
 
     .board {
         border-radius: 10px;
+        width: 100%;
     }
 }
 
