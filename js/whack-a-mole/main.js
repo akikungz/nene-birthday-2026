@@ -146,7 +146,19 @@ function setStatus(message, type = "") {
 
 function updateHud() {
   scoreEl.textContent = String(score);
-  timeEl.textContent = String(timeLeft);
+  timeEl.textContent = formatTime(timeLeft);
+}
+
+/**
+ * Formats seconds to mm:ss for stopwatch display.
+ * @param {number} totalSeconds
+ * @returns {string}
+ */
+function formatTime(totalSeconds) {
+  const safeSeconds = Math.max(0, Math.floor(totalSeconds));
+  const minutes = Math.floor(safeSeconds / 60);
+  const seconds = safeSeconds % 60;
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
 function getBestScore() {

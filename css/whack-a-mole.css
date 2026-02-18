@@ -279,7 +279,7 @@ h1 {
     width: var(--w);
     height: var(--h);
     transform: translate(-50%, -50%);
-    pointer-events: none;
+    pointer-events: auto;
     overflow: hidden;
 }
 
@@ -326,13 +326,12 @@ h1 {
     cursor: pointer;
     outline-offset: 4px;
     opacity: 0;
-    pointer-events: none;
+    pointer-events: auto;
 }
 
 .mole-btn.active {
     transform: translate(-50%, 0%);
     opacity: 1;
-    pointer-events: auto;
 }
 
 .mole-btn.hit {
