@@ -123,8 +123,9 @@ function updateHUD() {
     livesDisplay.innerHTML = "";
 
     for (let i = 0; i < lives; i++) {
-        const heart = document.createElement("img");
-        heart.src = "../assets/shooting/heart.png";
+        const heart = document.createElement("span");
+        heart.textContent = "❤️";
+        heart.setAttribute("aria-hidden", "true");
         heart.classList.add("heartIcon");
         livesDisplay.appendChild(heart);
     }

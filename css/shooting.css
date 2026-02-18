@@ -116,9 +116,18 @@ body {
     box-shadow: 0 10px 20px rgba(20, 7, 2, 0.45);
 }
 
+#livesDisplay {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .heartIcon {
-    width: clamp(40px, 5vw, 66px);
-    height: clamp(40px, 5vw, 66px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(28px, 3.2vw, 40px);
+    line-height: 1;
 }
 
 .screen {
