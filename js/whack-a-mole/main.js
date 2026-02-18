@@ -43,6 +43,10 @@ const CHARACTERS = [
   "tomato",
 ];
 
+const DANGEROUS_CHARACTERS = new Set(["canon", "eve", "kris", "mei"]);
+const VEGETABLE_CHARACTERS = new Set(["eggplant", "onion", "potato", "tomato"]);
+const MAX_HEALTH = 5;
+
 const GAME_DURATION = 142; // 2 Minutes and 22 Seconds is easter egg for Mikotomi Maneneko birthday date is 22nd February (22/02)
 const REWARD_THRESHOLD_SCORE = 22;
 const HIT_ANIMATION_MS = 200;
@@ -71,6 +75,7 @@ const HOLE_POSITIONS = [
 ];
 
 const scoreEl = document.getElementById("score");
+const healthEl = document.getElementById("health");
 const timeEl = document.getElementById("time");
 const bestEl = document.getElementById("best");
 const statusEl = document.getElementById("status");
@@ -89,6 +94,7 @@ const rewardScoreStorageKey = "game_whack_a_mole_score";
 const rewardFinishStorageKey = "game_whack_a_mole_finish";
 
 let score = 0;
+let health = MAX_HEALTH;
 let timeLeft = GAME_DURATION;
 let running = false;
 /** @type {CurrentHole | null} */
@@ -146,7 +152,18 @@ function setStatus(message, type = "") {
 
 function updateHud() {
   scoreEl.textContent = String(score);
+  healthEl.textContent = formatHealth(health);
   timeEl.textContent = formatTime(timeLeft);
+}
+
+/**
+ * Returns hearts in the format: filled + empty hearts.
+ * @param {number} value
+ * @returns {string}
+ */
+function formatHealth(value) {
+  const safeValue = Math.max(0, Math.min(MAX_HEALTH, Math.floor(value)));
+  return `${"❤️".repeat(safeValue)}${"🖤".repeat(MAX_HEALTH - safeValue)}`;
 }
 
 /**
@@ -590,10 +607,20 @@ function buildBoard() {
         return;
       }
 
-      score += 1;
+      const char = button.dataset.char;
+
+      if (DANGEROUS_CHARACTERS.has(char)) {
+        health -= 1;
+        setStatus(`Ouch! ${char} hit you. -1❤️`, "danger");
+      } else if (VEGETABLE_CHARACTERS.has(char)) {
+        score += 1;
+        setStatus(`Nice! ${char} +1 score`, "good");
+      } else {
+        setStatus("Hit!", "good");
+      }
+
       updateHud();
 
-      const char = button.dataset.char;
       mole.src = `${ASSET_BASE}/totem_${char}_hit.png`;
       button.dataset.isUp = "false";
       const lastSpawnId = button.dataset.spawnId;
@@ -607,7 +634,9 @@ function buildBoard() {
         }
       }, HIT_ANIMATION_MS);
 
-      setStatus("Nice hit! Keep going!", "good");
+      if (health <= 0) {
+        stopGame({ message: `Out of hearts! Final score: ${score}. Try again!`, statusType: "danger" });
+      }
     });
 
     hole.append(hint, button);
@@ -694,6 +723,7 @@ function startGame() {
   }
 
   score = 0;
+  health = MAX_HEALTH;
   timeLeft = GAME_DURATION;
   running = true;
   hideRewardOverlay();
