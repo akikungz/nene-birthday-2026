@@ -1,15 +1,35 @@
+/**
+ * @typedef {Object} SpritePair
+ * @property {string} normal - Default sprite image.
+ * @property {string} hit - Sprite image shown after a hit.
+ */
 
+/**
+ * @typedef {Object} SpawnPosition
+ * @property {number} x
+ * @property {number} y
+ * @property {boolean} fromEdge
+ */
+
+/**
+ * @typedef {Object} ScoreHistoryItem
+ * @property {number} score
+ * @property {string} date
+ */
+
+/** @type {SpritePair[]} */
 const Images = [
-    { normal: "assets/tomato1.png", hit: "assets/tomato2.png" },
-    { normal: "assets/eggplant1.png", hit: "assets/eggplant2.png" },
-    { normal: "assets/potato1.png", hit: "assets/potato2.png" },
-    { normal: "assets/onion1.png", hit: "assets/onion2.png" }
+    { normal: "../assets/shooting/tomato1.png", hit: "../assets/shooting/tomato2.png" },
+    { normal: "../assets/shooting/eggplant1.png", hit: "../assets/shooting/eggplant2.png" },
+    { normal: "../assets/shooting/potato1.png", hit: "../assets/shooting/potato2.png" },
+    { normal: "../assets/shooting/onion1.png", hit: "../assets/shooting/onion2.png" }
 ];
 
+/** @type {string[]} */
 const baitImages = [
-    "assets/fish.png",
-    "assets/mama.png",
-    "assets/milk.png"
+    "../assets/shooting/fish.png",
+    "../assets/shooting/mama.png",
+    "../assets/shooting/milk.png"
 ];
 
 const gameArea = document.getElementById("gameArea");
@@ -40,26 +60,36 @@ let nextLevelScore = 10;
 let zeroStartTime = null;
 let isPaused = false;
 
+/**
+ * Safely read score history from localStorage.
+ * @returns {ScoreHistoryItem[]}
+ */
+function getScoreHistory() {
+    try {
+        const raw = localStorage.getItem(`game_${gameName}_history`);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+    } catch {
+        return [];
+    }
+}
 
-
-
-
+/** Show tutorial screen before the game starts. */
 function showTutorial() {
     startScreen.style.display = "none";
     tutorialScreen.style.display = "flex";
 }
 
+/** Continue from tutorial and start the game. */
 function beginGame() {
     tutorialScreen.style.display = "none";
     startGame();
 }
 
-
+/** Reset game state and begin spawning waves. */
 function startGame() {
-
-    gameArea.style.cursor = 'url("assets/cursor2.png") 32 32, auto';
+    gameArea.style.cursor = 'url("../assets/shooting/cursor2.png") 32 32, auto';
     zeroStartTime = null;
-
 
     score = 0;
     lives = 3;
@@ -74,24 +104,24 @@ function startGame() {
     startWaveLoop();
 }
 
-
-
+/** Refresh score and hearts in the HUD. */
 function updateHUD() {
-
     scoreDisplay.textContent = score;
     livesDisplay.innerHTML = "";
 
     for (let i = 0; i < lives; i++) {
         const heart = document.createElement("img");
-        heart.src = "assets/heart.png";
+        heart.src = "../assets/shooting/heart.png";
         heart.classList.add("heartIcon");
         livesDisplay.appendChild(heart);
     }
 }
 
-
+/**
+ * Get a random spawn position, usually from screen edges.
+ * @returns {SpawnPosition}
+ */
 function randomSpawnPosition() {
-
     const w = gameArea.clientWidth;
     const h = gameArea.clientHeight;
 
@@ -118,9 +148,8 @@ function randomSpawnPosition() {
     return { x, y, fromEdge: true };
 }
 
-
+/** Spawn one moving target (veggie or bait) and attach hit behavior. */
 function spawnTarget() {
-
     const target = document.createElement("div");
     const isBait = Math.random() < 0.25;
 
@@ -180,7 +209,6 @@ function spawnTarget() {
     }, 20);
 
     target.onclick = () => {
-
         if (target.dataset.hit === "true") return;
         target.dataset.hit = "true";
 
@@ -188,7 +216,6 @@ function spawnTarget() {
         target.style.pointerEvents = "none";
 
         if (isBait) {
-
             lives--;
             updateHUD();
 
@@ -201,9 +228,7 @@ function spawnTarget() {
             if (lives <= 0) {
                 endGame();
             }
-
         } else {
-
             score += 1;
             spawnCount = Math.floor(score / 10) + 1;
 
@@ -229,8 +254,8 @@ function spawnTarget() {
     };
 }
 
+/** Start recurring wave generation every 2 seconds. */
 function startWaveLoop() {
-
     if (!isPaused) {
         spawnWave();
     }
@@ -239,8 +264,8 @@ function startWaveLoop() {
 }
 
 
+/** Spawn a wave based on current score progression. */
 function spawnWave() {
-
     let amount;
 
     if (spawnCount === 0) {
@@ -257,9 +282,7 @@ function spawnWave() {
         } else {
             amount = 3;
         }
-
     } else {
-
         amount = spawnCount;
         zeroStartTime = null;
     }
@@ -271,8 +294,8 @@ function spawnWave() {
     }
 }
 
+/** Show reward animation when the milk asset is unlocked. */
 function showMilkReward() {
-
     isPaused = true;
 
     const flash = document.createElement("div");
@@ -297,7 +320,7 @@ function showMilkReward() {
     }, 500);
 
     const milkImg = document.createElement("img");
-    milkImg.src = "assets/milk.png";
+    milkImg.src = "../assets/milk.png";
     milkImg.style.position = "absolute";
     milkImg.style.width = "300px";
     milkImg.style.left = "50%";
@@ -346,8 +369,8 @@ function showMilkReward() {
     }, 4000);
 }
 
+/** Finalize run, persist score history, and show game-over UI. */
 function endGame() {
-
     localStorage.setItem(`game_${gameName}_finish`, "true");
 
     gameArea.style.cursor = "default";
@@ -362,9 +385,8 @@ function endGame() {
     finalScoreText.textContent = score;
     gameOverScreen.style.display = "flex";
 
-    let history = JSON.parse(
-        localStorage.getItem(`game_${gameName}_history`)
-    ) || [];
+    /** @type {ScoreHistoryItem[]} */
+    let history = getScoreHistory();
 
     history.push({
         score: score,
@@ -383,11 +405,10 @@ function endGame() {
     displayHistory();
 }
 
+/** Render the latest score history into the game-over list. */
 function displayHistory() {
-
-    let history = JSON.parse(
-        localStorage.getItem(`game_${gameName}_history`)
-    ) || [];
+    /** @type {ScoreHistoryItem[]} */
+    let history = getScoreHistory();
 
     historyList.innerHTML = "";
 
