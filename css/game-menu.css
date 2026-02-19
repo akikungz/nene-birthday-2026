@@ -1,0 +1,118 @@
+html,
+body {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: radial-gradient(circle at top, #351a0a, #1a0b06 65%);
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+}
+
+/* Container scales responsively while keeping a 16:9 ratio */
+.game-menu-container {
+    position: relative;
+    width: 100%;
+    max-width: 1600px;
+    aspect-ratio: 16 / 9;
+    background-image: url('../assets/game_menu/background.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin: 0 auto;
+    overflow: hidden; 
+    border-radius: 1em;
+}
+
+/* Base style for the images themselves. 
+   Removing 'position: absolute' here stops the wrappers from collapsing to 0 height. */
+.asset {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Apply absolute positioning ONLY to the wrappers and direct children */
+.game-menu-container > img,
+.asset-link {
+    position: absolute;
+}
+
+/* Base style for interactive wrapper links */
+.asset-link {
+    display: block;
+    cursor: pointer;
+}
+
+/* --- Z-INDEX LAYERING & POSITIONING --- */
+
+.tower {
+    width: 32%;
+    left: 50%;
+    /* top: 20%; Brought down slightly for better centering */
+    transform: translateX(-50%);
+    z-index: 1;
+}
+
+.target-shooting {
+    width: 24%;
+    left: 7%;
+    top: 10%; 
+    z-index: 2;
+}
+
+.whack-a-mole {
+    width: 24%;
+    right: 8%;
+    top: 8%;
+    z-index: 2;
+}
+
+/* Because the wrappers now have height, anchoring to the bottom works perfectly */
+.minesweeper {
+    width: 26%;
+    left: 15%;
+    bottom: 4%; 
+    z-index: 3;
+}
+
+.match-cards {
+    width: 43%;
+    right: 0%;
+    bottom: 0%; 
+    z-index: 3;
+}
+
+.character {
+    width: 12%; 
+    left: 50%;
+    bottom: 8%; 
+    transform: translateX(-50%);
+    z-index: 4;
+}
+
+.trees-overlay {
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    object-fit: cover;
+    z-index: 5;
+    pointer-events: none; /* Allows clicking through the transparent parts */
+}
+
+/* --- INTERACTIVE HOVER EFFECTS --- */
+
+.interactive {
+    transition: transform 0.2s ease-in-out, filter 0.2s ease; 
+}
+
+.asset-link:hover .interactive {
+    transform: scale(1.05); 
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5)); 
+}
