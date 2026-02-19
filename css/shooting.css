@@ -27,6 +27,10 @@ body {
     width: min(96vw, calc((100vh - 40px) * 16 / 9));
     aspect-ratio: 16 / 9;
     max-height: calc(100vh - 40px);
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
     border-radius: 24px;
     overflow: hidden;
     background:
@@ -36,6 +40,25 @@ body {
     box-shadow:
         var(--wood-shadow),
         inset 0 1px 0 rgba(255, 231, 194, 0.22);
+}
+
+.shooting-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    z-index: 5;
+}
+
+.shooting-header h1 {
+    margin: 0;
+    font-size: clamp(1.25rem, 2.6vw, 1.9rem);
+    color: #fff6e6;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: rgba(56, 20, 6, 0.6);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
 }
 
 #gameArea {
@@ -58,8 +81,8 @@ body {
 
 .target {
     position: absolute;
-    width: clamp(120px, 14vw, 200px);
-    height: clamp(120px, 14vw, 200px);
+    width: clamp(90px, 10.5vw, 170px);
+    height: clamp(90px, 10.5vw, 170px);
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -67,17 +90,20 @@ body {
     z-index: 2;
 }
 
-#scoreHUD,
-#livesHUD {
-    position: absolute;
-    top: 2.5%;
-    z-index: 6;
+#playZone {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
 #scoreHUD {
-    left: 3%;
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    flex-wrap: wrap;
     gap: 8px;
     background: var(--card-bg);
     color: var(--card-text);
@@ -86,7 +112,7 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.75);
     box-shadow: 0 12px 24px rgba(36, 16, 5, 0.25);
     backdrop-filter: blur(6px);
-    min-width: min(260px, 70vw);
+    min-width: min(360px, 85vw);
 }
 
 #scoreHUD .row {
@@ -116,28 +142,21 @@ body {
     text-align: center;
 }
 
-#livesHUD {
-    right: 3%;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(66, 25, 8, 0.65);
-    padding: 10px 14px;
-    border-radius: 999px;
-    box-shadow: 0 10px 20px rgba(20, 7, 2, 0.45);
-}
-
 #livesDisplay {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
+}
+
+.lives-value {
+    min-width: 112px;
 }
 
 .heartIcon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: clamp(28px, 3.2vw, 40px);
+    font-size: clamp(18px, 2vw, 24px);
     line-height: 1;
 }
 
@@ -155,7 +174,7 @@ body {
 
 .screen-card {
     width: min(620px, 92vw);
-    max-height: 85vh;
+    max-height: 80%;
     overflow: auto;
     background: rgba(255, 250, 240, 0.95);
     border-radius: 20px;
@@ -235,18 +254,14 @@ button:hover {
     #gameWrapper {
         width: min(98vw, calc((100vh - 20px) * 16 / 9));
         max-height: calc(100vh - 20px);
+        padding: 10px;
+        gap: 8px;
         border-radius: 14px;
     }
 
     #scoreHUD {
-        min-width: auto;
-        width: 58vw;
-    }
-
-    #livesHUD {
-        top: auto;
-        bottom: 3%;
-        right: 3%;
+        min-width: 100%;
+        justify-content: center;
     }
 
     .screen-card {
