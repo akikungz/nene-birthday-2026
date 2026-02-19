@@ -18,6 +18,30 @@ body {
     padding: 20px;
 }
 
+.back-menu-fixed {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 1200;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-weight: 700;
+    text-decoration: none;
+    color: #4a2b0c;
+    background: rgba(255, 243, 220, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.22);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.back-menu-fixed:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
 /* ================================
    Container (ตัวห่อหลัก)
    ================================ */

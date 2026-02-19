@@ -28,6 +28,7 @@
  * @typedef {Object} StopGameOptions
  * @property {string} [message]
  * @property {"" | "good" | "danger"} [statusType]
+ * @property {boolean} [passed]
  */
 
 const ASSET_BASE = "../assets/whack-a-mole";
@@ -118,6 +119,7 @@ let hammerKeyboardHideTimer = null;
 let hammerTouchHideTimer = null;
 let pointerOverBoard = false;
 let lastFinalScore = 0;
+let lastGamePassed = false;
 
 /**
  * Returns a random integer in the inclusive range [min, max].
@@ -195,14 +197,14 @@ function hideRewardOverlay() {
   resultOverlay.setAttribute("aria-hidden", "true");
 }
 
-function showRewardOverlay(finalScore) {
+function showRewardOverlay(finalScore, didPass = false) {
   if (!resultOverlay || !resultTitle || !resultScore || !prizeBtn || !prizeBtnLabel) {
     return;
   }
 
   const alreadyCollected = localStorage.getItem(rewardFinishStorageKey) === "true";
-  resultTitle.textContent = "Reward unlocked!";
-  resultScore.textContent = `Score: ${finalScore} (Need > ${REWARD_THRESHOLD_SCORE})`;
+  resultTitle.textContent = didPass ? "Pass! Reward unlocked!" : "Reward unlocked!";
+  resultScore.textContent = `Score: ${finalScore} (Need > ${REWARD_THRESHOLD_SCORE} or Pass)`;
 
   if (alreadyCollected) {
     prizeBtn.classList.add("collected");
@@ -686,7 +688,7 @@ function spawnMole() {
  * @param {StopGameOptions} [options={}]
  */
 function stopGame(options = {}) {
-  const { message = "", statusType = "" } = options;
+  const { message = "", statusType = "", passed = false } = options;
 
   running = false;
   clearInterval(clockTimer);
@@ -698,6 +700,7 @@ function stopGame(options = {}) {
     difficultyEl.disabled = false;
   }
   lastFinalScore = score;
+  lastGamePassed = Boolean(passed);
   localStorage.setItem(rewardScoreStorageKey, String(lastFinalScore));
 
   const best = getBestScore();
@@ -710,8 +713,8 @@ function stopGame(options = {}) {
     setStatus(`Time's up! Final score: ${score}. Try again!`);
   }
 
-  if (lastFinalScore > REWARD_THRESHOLD_SCORE) {
-    showRewardOverlay(lastFinalScore);
+  if (lastFinalScore > REWARD_THRESHOLD_SCORE || lastGamePassed) {
+    showRewardOverlay(lastFinalScore, lastGamePassed);
   } else {
     hideRewardOverlay();
   }
@@ -732,6 +735,7 @@ function startGame() {
   health = MAX_HEALTH;
   timeLeft = GAME_DURATION;
   running = true;
+  lastGamePassed = false;
   hideRewardOverlay();
   holeShortcutTimestamps.clear();
   lastKeyboardShortcutAt = 0;
@@ -751,7 +755,7 @@ function startGame() {
     updateHud();
 
     if (timeLeft <= 0) {
-      stopGame();
+      stopGame({ passed: health > 0 });
     }
   }, 1000);
 
@@ -800,7 +804,7 @@ function init() {
   if (prizeBtn) {
     prizeBtn.addEventListener("click", (event) => {
       event.stopPropagation();
-      if (running || lastFinalScore <= REWARD_THRESHOLD_SCORE) {
+      if (running || (lastFinalScore <= REWARD_THRESHOLD_SCORE && !lastGamePassed)) {
         return;
       }
 

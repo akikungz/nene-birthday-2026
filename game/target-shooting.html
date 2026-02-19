@@ -10,7 +10,10 @@
 
 <div id="gameWrapper">
     <div class="shooting-header">
+        <a href="./index.html" class="back-menu-btn" aria-label="Back to game menu">← Back to Menu</a>
         <h1>Target Shooting 🎯</h1>
+
+        <div style="flex-grow: 1;"></div>
 
         <div id="scoreHUD">
             <div class="row">
@@ -27,7 +30,7 @@
             </div>
             <div class="row">
                 <span class="label">ชีวิต</span>
-                <span id="livesDisplay" class="value lives-value"></span>
+                <span id="livesDisplay" class="value lives-value">❤️❤️❤️❤️❤️</span>
             </div>
         </div>
     </div>
@@ -61,6 +64,17 @@
                 <ul id="historyList"></ul>
 
                 <button onclick="startGame()">เล่นอีกครั้ง</button>
+            </div>
+        </div>
+
+        <div id="resultOverlay" class="result-overlay" aria-hidden="true">
+            <div class="result-card">
+                <div id="resultTitle" class="result-title">Reward unlocked!</div>
+                <div id="resultScore" class="result-score">Score: 0</div>
+                <button id="prizeBtn" class="prize-btn" type="button" aria-label="Collect reward">
+                    <img src="../assets/cake-reward/milk.png" alt="Reward">
+                    <span id="prizeBtnLabel">Collect Reward</span>
+                </button>
             </div>
         </div>
     </div>

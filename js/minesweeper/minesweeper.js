@@ -267,7 +267,7 @@ const prizeBtn = document.getElementById('prizeBtn');
 const prizeBtnLabel = prizeBtn.querySelector('span');
 const newGameBtn = document.getElementById('newGameBtn');
 
-const instantWinUnlockLosses = 3;
+const instantWinUnlockLosses = 5;
 let lossCount = 0;
 
 let instantWinBtn = document.getElementById('instantWinBtn');

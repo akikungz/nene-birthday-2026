@@ -33,6 +33,7 @@ const baitImages = [
 ];
 
 const gameArea = document.getElementById("gameArea");
+const playZone = document.getElementById("playZone");
 const startScreen = document.getElementById("startScreen");
 const tutorialScreen = document.getElementById("tutorialScreen");
 const gameOverScreen = document.getElementById("gameOverScreen");
@@ -42,12 +43,19 @@ const scoreDisplay = document.getElementById("scoreDisplay");
 const timerDisplay = document.getElementById("timerDisplay");
 const highScoreDisplay = document.getElementById("highScoreDisplay");
 const historyList = document.getElementById("historyList");
+const resultOverlay = document.getElementById("resultOverlay");
+const resultTitle = document.getElementById("resultTitle");
+const resultScore = document.getElementById("resultScore");
+const prizeBtn = document.getElementById("prizeBtn");
+const prizeBtnLabel = document.getElementById("prizeBtnLabel");
 
 const gameName = "ShootingGame";
 const TIME_LIMIT_SECONDS = 2 * 60 + 22;
 const REWARD_THRESHOLD_SCORE = 22;
 const rewardScoreStorageKey = "game_target_shooting_score";
 const rewardFinishStorageKey = "game_target_shooting_finish";
+const CURSOR_SOURCE = "../assets/shooting/cursor.png";
+const CURSOR_SWING_MS = 90;
 
 let highScore = parseInt(
     localStorage.getItem(`game_${gameName}_maxScore`)
@@ -55,10 +63,8 @@ let highScore = parseInt(
 
 highScoreDisplay.textContent = highScore;
 
-let MILK = false; //asset
-
 let score = 0;
-let lives = 3;
+let lives = 5;
 let waveTimeout;
 let timerInterval;
 let spawnCount = 1;
@@ -68,6 +74,157 @@ let isPaused = false;
 let isGameOver = false;
 let gameStartTime = 0;
 let timeLeft = TIME_LIMIT_SECONDS;
+let lastResultWasPass = false;
+let customCursorEl = null;
+let cursorSwingTimer = null;
+let cursorEventsBound = false;
+let cursorMoveRaf = null;
+let pendingCursorX = 0;
+let pendingCursorY = 0;
+
+/**
+ * Ensure animated cursor element exists inside the play zone.
+ */
+function ensureCustomCursorElement() {
+    if (customCursorEl || !playZone) {
+        return;
+    }
+
+    customCursorEl = document.createElement("img");
+    customCursorEl.className = "shooting-cursor";
+    customCursorEl.src = CURSOR_SOURCE;
+    customCursorEl.alt = "";
+    customCursorEl.setAttribute("aria-hidden", "true");
+    playZone.appendChild(customCursorEl);
+}
+
+function showCustomCursor() {
+    if (!customCursorEl) {
+        return;
+    }
+
+    customCursorEl.classList.add("show");
+}
+
+function hideCustomCursor() {
+    if (!customCursorEl) {
+        return;
+    }
+
+    customCursorEl.classList.remove("show", "swing");
+}
+
+/**
+ * Position cursor element from mouse coordinates.
+ * @param {MouseEvent} event
+ */
+function setCustomCursorPosition(event) {
+    if (!customCursorEl || !playZone) {
+        return;
+    }
+
+    const rect = playZone.getBoundingClientRect();
+    pendingCursorX = event.clientX - rect.left;
+    pendingCursorY = event.clientY - rect.top;
+
+    if (cursorMoveRaf) {
+        return;
+    }
+
+    cursorMoveRaf = requestAnimationFrame(() => {
+        if (customCursorEl) {
+            customCursorEl.style.left = `${pendingCursorX}px`;
+            customCursorEl.style.top = `${pendingCursorY}px`;
+        }
+        cursorMoveRaf = null;
+    });
+}
+
+function swingCustomCursor() {
+    if (!customCursorEl) {
+        return;
+    }
+
+    customCursorEl.classList.add("swing");
+    clearTimeout(cursorSwingTimer);
+    cursorSwingTimer = setTimeout(() => {
+        customCursorEl?.classList.remove("swing");
+    }, CURSOR_SWING_MS);
+}
+
+function bindCustomCursorEvents() {
+    if (cursorEventsBound || !gameArea) {
+        return;
+    }
+
+    cursorEventsBound = true;
+
+    gameArea.addEventListener("pointerenter", (event) => {
+        if (isGameOver) return;
+        ensureCustomCursorElement();
+        setCustomCursorPosition(event);
+        showCustomCursor();
+    });
+
+    gameArea.addEventListener("pointermove", (event) => {
+        if (isGameOver) return;
+        ensureCustomCursorElement();
+        setCustomCursorPosition(event);
+        showCustomCursor();
+    });
+
+    gameArea.addEventListener("pointerleave", () => {
+        hideCustomCursor();
+    });
+
+    gameArea.addEventListener("pointerdown", (event) => {
+        if (isGameOver) return;
+        ensureCustomCursorElement();
+        setCustomCursorPosition(event);
+        showCustomCursor();
+        swingCustomCursor();
+    });
+}
+
+function hideRewardOverlay() {
+    if (!resultOverlay) return;
+    resultOverlay.classList.remove("show");
+    resultOverlay.setAttribute("aria-hidden", "true");
+}
+
+function showRewardOverlay(finalScore, didPass) {
+    if (!resultOverlay || !resultTitle || !resultScore || !prizeBtn || !prizeBtnLabel) {
+        return;
+    }
+
+    const alreadyCollected = localStorage.getItem(rewardFinishStorageKey) === "true";
+
+    resultTitle.textContent = didPass ? "Pass! Reward unlocked!" : "Reward unlocked!";
+    resultScore.textContent = `Score: ${finalScore} (Need > ${REWARD_THRESHOLD_SCORE} or Pass)`;
+
+    if (alreadyCollected) {
+        prizeBtn.classList.add("collected");
+        prizeBtn.disabled = true;
+        prizeBtnLabel.textContent = "Reward already collected";
+    } else {
+        prizeBtn.classList.remove("collected");
+        prizeBtn.disabled = false;
+        prizeBtnLabel.textContent = "Collect Reward";
+    }
+
+    resultOverlay.classList.add("show");
+    resultOverlay.setAttribute("aria-hidden", "false");
+}
+
+/**
+ * Persist unlock as soon as score passes threshold (before game end).
+ */
+function unlockRewardByScoreProgress() {
+    if (score > REWARD_THRESHOLD_SCORE) {
+        localStorage.setItem(rewardScoreStorageKey, String(score));
+        localStorage.setItem(`game_${gameName}_finish`, "true");
+    }
+}
 
 /**
  * Safely read score history from localStorage.
@@ -97,13 +254,16 @@ function beginGame() {
 
 /** Reset game state and begin spawning waves. */
 function startGame() {
-    gameArea.style.cursor = 'url("../assets/shooting/cursor2.png") 32 32, auto';
+    bindCustomCursorEvents();
+    ensureCustomCursorElement();
+    gameArea.style.cursor = "none";
     zeroStartTime = null;
     isGameOver = false;
     isPaused = false;
+    lastResultWasPass = false;
 
     score = 0;
-    lives = 3;
+    lives = 5;
     spawnCount = 1;
     timeLeft = TIME_LIMIT_SECONDS;
     gameStartTime = Date.now();
@@ -116,6 +276,7 @@ function startGame() {
     gameArea.innerHTML = "";
     startScreen.style.display = "none";
     gameOverScreen.style.display = "none";
+    hideRewardOverlay();
 
     startTimer();
     requestAnimationFrame(() => {
@@ -164,7 +325,7 @@ function startTimer() {
         timerDisplay.textContent = formatTime(timeLeft);
 
         if (timeLeft <= 0) {
-            endGame();
+            endGame(lives > 0 ? "pass" : "timeout");
         }
     }, 1000);
 }
@@ -264,7 +425,9 @@ function spawnTarget() {
 
     }, 20);
 
-    target.onclick = () => {
+    const onTargetHit = (event) => {
+        event.preventDefault();
+
         if (target.dataset.hit === "true") return;
         target.dataset.hit = "true";
 
@@ -282,16 +445,13 @@ function spawnTarget() {
             }, 150);
 
             if (lives <= 0) {
-                endGame();
+                endGame("fail");
             }
         } else {
             score += 1;
             spawnCount = Math.floor(score / 10) + 1;
 
-            if (score >= 50 && !MILK) {
-                MILK = true;
-                showMilkReward();
-            }
+            unlockRewardByScoreProgress();
 
             if (spawnCount > 3) {
                 spawnCount = 0;
@@ -308,6 +468,8 @@ function spawnTarget() {
             }, 500);
         }
     };
+
+    target.addEventListener("pointerdown", onTargetHit);
 }
 
 /** Start recurring wave generation every 2 seconds. */
@@ -354,96 +516,19 @@ function spawnWave() {
     }
 }
 
-/** Show reward animation when the milk asset is unlocked. */
-function showMilkReward() {
-    isPaused = true;
-
-    const flash = document.createElement("div");
-    flash.style.position = "absolute";
-    flash.style.top = "0";
-    flash.style.left = "0";
-    flash.style.width = "100%";
-    flash.style.height = "100%";
-    flash.style.background = "white";
-    flash.style.opacity = "0";
-    flash.style.transition = "0.4s ease";
-    flash.style.zIndex = "998";
-
-    gameArea.appendChild(flash);
-
-    setTimeout(() => {
-        flash.style.opacity = "0.9";
-    }, 50);
-
-    setTimeout(() => {
-        flash.style.opacity = "0";
-    }, 500);
-
-    const milkImg = document.createElement("img");
-    milkImg.src = "../assets/milk.png";
-    milkImg.style.position = "absolute";
-    milkImg.style.width = "300px";
-    milkImg.style.left = "50%";
-    milkImg.style.top = "45%";
-    milkImg.style.transform = "translate(-50%, -50%) scale(0)";
-    milkImg.style.transition = "0.8s ease";
-    milkImg.style.zIndex = "999";
-    milkImg.style.filter = "drop-shadow(0 0 25px gold)";
-
-    gameArea.appendChild(milkImg);
-
-    const text = document.createElement("div");
-    text.textContent = "Asset Unlocked!";
-    text.style.position = "absolute";
-    text.style.left = "50%";
-    text.style.top = "65%";
-    text.style.transform = "translate(-50%, -50%) scale(0)";
-    text.style.fontSize = "48px";
-    text.style.fontWeight = "bold";
-    text.style.color = "gold";
-    text.style.textShadow = "0 0 20px white, 0 0 40px gold";
-    text.style.transition = "0.8s ease";
-    text.style.zIndex = "999";
-
-    gameArea.appendChild(text);
-
-    setTimeout(() => {
-        milkImg.style.transform = "translate(-50%, -50%) scale(1.4)";
-        text.style.transform = "translate(-50%, -50%) scale(1)";
-    }, 600);
-
-    setTimeout(() => {
-        milkImg.style.transform = "translate(-50%, -50%) scale(1.2)";
-    }, 1400);
-
-    setTimeout(() => {
-        milkImg.style.transform = "translate(-50%, -50%) scale(0)";
-        text.style.transform = "translate(-50%, -50%) scale(0)";
-    }, 3200);
-
-    setTimeout(() => {
-        milkImg.remove();
-        text.remove();
-        flash.remove();
-        isPaused = false;
-    }, 4000);
-}
-
 /** Finalize run, persist score history, and show game-over UI. */
-function endGame() {
+function endGame(reason = "timeout") {
     if (isGameOver) {
         return;
     }
+    const didPass = reason === "pass";
 
     isGameOver = true;
+    lastResultWasPass = didPass;
     localStorage.setItem(rewardScoreStorageKey, String(score));
 
-    if (score > REWARD_THRESHOLD_SCORE) {
-        localStorage.setItem(rewardFinishStorageKey, "true");
-        localStorage.setItem(`game_${gameName}_finish`, "true");
-    }
-
     gameArea.style.cursor = "default";
+    hideCustomCursor();
     clearTimeout(waveTimeout);
     clearInterval(timerInterval);
     timeLeft = 0;
@@ -457,6 +542,16 @@ function endGame() {
 
     finalScoreText.textContent = score;
     gameOverScreen.style.display = "flex";
+
+    const rewardUnlocked = score > REWARD_THRESHOLD_SCORE || didPass;
+    if (rewardUnlocked) {
+        if (didPass) {
+            localStorage.setItem(`game_${gameName}_finish`, "true");
+        }
+        showRewardOverlay(score, didPass);
+    } else {
+        hideRewardOverlay();
+    }
 
     /** @type {ScoreHistoryItem[]} */
     let history = getScoreHistory();
@@ -478,6 +573,39 @@ function endGame() {
     displayHistory();
 }
 
+if (resultOverlay) {
+    resultOverlay.addEventListener("click", () => {
+        hideRewardOverlay();
+    });
+}
+
+if (prizeBtn) {
+    prizeBtn.addEventListener("click", (event) => {
+        event.stopPropagation();
+        if (!isGameOver) {
+            return;
+        }
+
+        const rewardUnlocked = score > REWARD_THRESHOLD_SCORE || lastResultWasPass;
+        if (!rewardUnlocked) {
+            return;
+        }
+
+        const alreadyCollected = localStorage.getItem(rewardFinishStorageKey) === "true";
+        if (alreadyCollected) {
+            return;
+        }
+
+        localStorage.setItem(rewardFinishStorageKey, "true");
+        localStorage.setItem(`game_${gameName}_finish`, "true");
+        prizeBtn.classList.add("collected");
+        prizeBtn.disabled = true;
+        if (prizeBtnLabel) {
+            prizeBtnLabel.textContent = "Reward claimed";
+        }
+    });
+}
+
 /** Render the latest score history into the game-over list. */
 function displayHistory() {
     /** @type {ScoreHistoryItem[]} */
@@ -492,3 +620,5 @@ function displayHistory() {
         historyList.appendChild(li);
     });
 }
+
+bindCustomCursorEvents();

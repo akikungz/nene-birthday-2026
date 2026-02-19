@@ -278,6 +278,13 @@ body {
     box-shadow: 0 12px 24px rgba(255, 193, 92, 0.35);
 }
 
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
 .difficulty {
     display: flex;
     align-items: center;

@@ -136,6 +136,12 @@ h1 {
     transform: translateY(1px);
 }
 
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+}
+
 .select {
     border: 2px solid var(--accent-strong);
     border-radius: 10px;
