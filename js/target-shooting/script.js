@@ -45,6 +45,9 @@ const historyList = document.getElementById("historyList");
 
 const gameName = "ShootingGame";
 const TIME_LIMIT_SECONDS = 2 * 60 + 22;
+const REWARD_THRESHOLD_SCORE = 22;
+const rewardScoreStorageKey = "game_target_shooting_score";
+const rewardFinishStorageKey = "game_target_shooting_finish";
 
 let highScore = parseInt(
     localStorage.getItem(`game_${gameName}_maxScore`)
@@ -97,9 +100,11 @@ function startGame() {
     gameArea.style.cursor = 'url("../assets/shooting/cursor2.png") 32 32, auto';
     zeroStartTime = null;
     isGameOver = false;
+    isPaused = false;
 
     score = 0;
     lives = 3;
+    spawnCount = 1;
     timeLeft = TIME_LIMIT_SECONDS;
     gameStartTime = Date.now();
 
@@ -113,7 +118,11 @@ function startGame() {
     gameOverScreen.style.display = "none";
 
     startTimer();
-    startWaveLoop();
+    requestAnimationFrame(() => {
+        if (!isGameOver) {
+            startWaveLoop();
+        }
+    });
 }
 
 /** Refresh score and hearts in the HUD. */
@@ -165,8 +174,8 @@ function startTimer() {
  * @returns {SpawnPosition}
  */
 function randomSpawnPosition() {
-    const w = gameArea.clientWidth;
-    const h = gameArea.clientHeight;
+    const w = Math.max(gameArea.clientWidth, 120);
+    const h = Math.max(gameArea.clientHeight, 120);
 
     const spawnFromEdge = Math.random() < 0.6;
 
@@ -427,7 +436,12 @@ function endGame() {
     }
 
     isGameOver = true;
-    localStorage.setItem(`game_${gameName}_finish`, "true");
+    localStorage.setItem(rewardScoreStorageKey, String(score));
+
+    if (score > REWARD_THRESHOLD_SCORE) {
+        localStorage.setItem(rewardFinishStorageKey, "true");
+        localStorage.setItem(`game_${gameName}_finish`, "true");
+    }
 
     gameArea.style.cursor = "default";
     clearTimeout(waveTimeout);
