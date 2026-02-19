@@ -489,6 +489,10 @@ function isTypingTarget(target) {
  * @param {number} step
  */
 function cycleDifficulty(step) {
+  if (!difficultyEl) {
+    return;
+  }
+
   const currentKey = difficultyEl.value || "normal";
   const currentIndex = DIFFICULTY_ORDER.indexOf(currentKey);
   const safeIndex = currentIndex >= 0 ? currentIndex : 1;
@@ -690,7 +694,9 @@ function stopGame(options = {}) {
   clearTimeout(hideTimer);
   hideCurrentMole();
   startBtn.disabled = !assetsReady;
-  difficultyEl.disabled = false;
+  if (difficultyEl) {
+    difficultyEl.disabled = false;
+  }
   lastFinalScore = score;
   localStorage.setItem(rewardScoreStorageKey, String(lastFinalScore));
 
@@ -730,7 +736,9 @@ function startGame() {
   holeShortcutTimestamps.clear();
   lastKeyboardShortcutAt = 0;
   startBtn.disabled = true;
-  difficultyEl.disabled = true;
+  if (difficultyEl) {
+    difficultyEl.disabled = true;
+  }
   activeDifficulty = getSelectedDifficulty();
   setStatus(`Game started (${activeDifficulty.label})! Whack every totem you can!`);
 
@@ -768,16 +776,18 @@ function init() {
     }
   });
 
-  difficultyEl.addEventListener("change", () => {
-    if (!running) {
-      activeDifficulty = getSelectedDifficulty();
-      if (assetsReady) {
-        setStatus(`Difficulty set to ${activeDifficulty.label}. Press Start and bonk the totems!`);
-      } else {
-        setStatus(`Difficulty: ${activeDifficulty.label}. Loading images...`);
+  if (difficultyEl) {
+    difficultyEl.addEventListener("change", () => {
+      if (!running) {
+        activeDifficulty = getSelectedDifficulty();
+        if (assetsReady) {
+          setStatus(`Difficulty set to ${activeDifficulty.label}. Press Start and bonk the totems!`);
+        } else {
+          setStatus(`Difficulty: ${activeDifficulty.label}. Loading images...`);
+        }
       }
-    }
-  });
+    });
+  }
 
   document.addEventListener("keydown", handleGameKeydown);
 
