@@ -43,6 +43,10 @@ class Minesweeper {
         this.initGame();
     }
 
+    /**
+     * Reset board state, timers, and gameplay flags for a fresh run.
+     * @returns {void}
+     */
     initGame() {
         this.board = Array(this.rows).fill(null).map(() => Array(this.cols).fill(0));
         this.revealed = Array(this.rows).fill(null).map(() => Array(this.cols).fill(false));
@@ -59,6 +63,10 @@ class Minesweeper {
         this.timerInterval = null;
     }
 
+    /**
+     * Randomly place mines and compute adjacent mine counts.
+     * @returns {void}
+     */
     placeMines() {
         let placed = 0;
         while (placed < this.mines) {
@@ -164,6 +172,12 @@ class Minesweeper {
         this.checkWin();
     }
 
+    /**
+     * Toggle flag marker on a covered cell.
+     * @param {number} row
+     * @param {number} col
+     * @returns {void}
+     */
     toggleFlag(row, col) {
         if (this.revealed[row][col] || this.gameOver || this.firstClick) {
             return;
@@ -172,6 +186,10 @@ class Minesweeper {
         this.flagged[row][col] = !this.flagged[row][col];
     }
 
+    /**
+     * Reveal all mine cells, typically on loss.
+     * @returns {void}
+     */
     revealAllMines() {
         for (let r = 0; r < this.rows; r++) {
             for (let c = 0; c < this.cols; c++) {
@@ -182,6 +200,10 @@ class Minesweeper {
         }
     }
 
+    /**
+     * Check whether all safe cells are revealed and end game if won.
+     * @returns {void}
+     */
     checkWin() {
         let revealedCount = 0;
         const totalSafe = this.rows * this.cols - this.mines;
@@ -201,6 +223,10 @@ class Minesweeper {
         }
     }
 
+    /**
+     * Mark all mines as flagged after a successful completion.
+     * @returns {void}
+     */
     flagAllMines() {
         for (let r = 0; r < this.rows; r++) {
             for (let c = 0; c < this.cols; c++) {
@@ -211,6 +237,10 @@ class Minesweeper {
         }
     }
 
+    /**
+     * Start elapsed-time counter for active round.
+     * @returns {void}
+     */
     startTimer() {
         if (this.timerInterval) {
             clearInterval(this.timerInterval);
@@ -223,6 +253,10 @@ class Minesweeper {
         }, 100);
     }
 
+    /**
+     * Stop elapsed-time counter and preserve final elapsed value.
+     * @returns {void}
+     */
     stopTimer() {
         if (this.timerInterval) {
             clearInterval(this.timerInterval);
@@ -234,6 +268,10 @@ class Minesweeper {
         }
     }
 
+    /**
+     * Count currently flagged cells.
+     * @returns {number}
+     */
     getFlaggedCount() {
         let count = 0;
         for (let r = 0; r < this.rows; r++) {
@@ -312,6 +350,10 @@ function getDifficultyConfig(difficultyKey) {
     return difficulties[difficultyKey] || difficulties.medium;
 }
 
+/**
+ * Toggle visibility and enabled state of the instant-win helper button.
+ * @returns {void}
+ */
 function updateInstantWinButtonVisibility() {
     if (!instantWinBtn) return;
     const shouldShow = lossCount >= instantWinUnlockLosses;
@@ -319,6 +361,10 @@ function updateInstantWinButtonVisibility() {
     instantWinBtn.disabled = !shouldShow;
 }
 
+/**
+ * Register a loss only once per finished losing game.
+ * @returns {void}
+ */
 function registerLoss() {
     if (!game || !game.gameLost) return;
     if (game.lossRecorded) return;
@@ -327,6 +373,10 @@ function registerLoss() {
     updateInstantWinButtonVisibility();
 }
 
+/**
+ * Initialize game state from selected difficulty and refresh board UI.
+ * @returns {void}
+ */
 function initializeGame() {
     if (game && game.timerInterval) {
         clearInterval(game.timerInterval);
@@ -352,6 +402,11 @@ function initializeGame() {
     updateInstantWinButtonVisibility();
 }
 
+/**
+ * Compute score based on board complexity and completion time.
+ * @param {number} elapsedSeconds
+ * @returns {number}
+ */
 function computeScore(elapsedSeconds) {
     const totalTiles = game.rows * game.cols;
     const safeTiles = totalTiles - game.mines;
@@ -361,6 +416,10 @@ function computeScore(elapsedSeconds) {
     return Math.max(0, Math.round(baseScore - timePenalty));
 }
 
+/**
+ * Force a win state for unlocked helper action.
+ * @returns {void}
+ */
 function forceWin() {
     if (!game || game.gameOver) return;
     if (game.firstClick) {
@@ -383,6 +442,10 @@ function forceWin() {
     updateGameStatus();
 }
 
+/**
+ * Size CSS grid cells to fit available board area.
+ * @returns {void}
+ */
 function sizeBoardToArea() {
     const rect = boardArea.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
@@ -401,6 +464,10 @@ function sizeBoardToArea() {
     boardElement.style.setProperty('--cell-size', `${Math.min(cellWidth, cellHeight)}px`);
 }
 
+/**
+ * Reset reward/result overlay to default hidden state.
+ * @returns {void}
+ */
 function resetResultOverlay() {
     resultOverlay.classList.remove('show');
     resultOverlay.setAttribute('aria-hidden', 'true');
@@ -444,6 +511,10 @@ function toggleFlagAt(row, col) {
     renderBoard();
 }
 
+/**
+ * Render all board cells and attach click/touch interactions.
+ * @returns {void}
+ */
 function renderBoard() {
     boardElement.innerHTML = '';
 
@@ -552,10 +623,18 @@ function renderBoard() {
     updateFlagCount();
 }
 
+/**
+ * Update flag counter display from current game state.
+ * @returns {void}
+ */
 function updateFlagCount() {
     flagCountElement.textContent = game.getFlaggedCount();
 }
 
+/**
+ * Update game status text/overlay based on win-loss state transitions.
+ * @returns {void}
+ */
 function updateGameStatus() {
     if (game.gameLost) {
         statusElement.textContent = 'คนแพ้โดนหัวหอมกิน!';

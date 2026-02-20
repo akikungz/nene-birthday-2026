@@ -3,9 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="stylesheet" href="./css/main-menu.css">
+    <title>Main Menu</title>
 </head>
 <body>
-    
+    <div class="game-menu-container">
+        <video
+            class="menu-bg-video"
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="auto"
+            aria-label="Animated main menu background"
+        >
+            <source src="./assets/main_menu_background_animated.mp4" type="video/mp4">
+        </video>
+
+        <div class="main-menu-actions" aria-label="Main menu actions">
+            <button type="button" class="vanilla-btn" data-menu-action="settings">Settings</button>
+            <button type="button" class="vanilla-btn" data-menu-action="start">Start</button>
+            <button type="button" class="vanilla-btn" data-menu-action="credit">Credit</button>
+        </div>
+
+        <div class="settings-modal" id="settingsModal" aria-hidden="true">
+            <div class="settings-card" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+                <h2 id="settingsTitle">Settings</h2>
+
+                <label class="settings-row" for="bgmVolumeSlider">
+                    <span>BGM Volume</span>
+                    <strong id="bgmVolumeValue">100%</strong>
+                </label>
+                <input id="bgmVolumeSlider" class="settings-slider" type="range" min="0" max="100" step="1" value="100" aria-label="BGM volume">
+
+                <label class="settings-row" for="sfxVolumeSlider">
+                    <span>SFX Volume</span>
+                    <strong id="sfxVolumeValue">100%</strong>
+                </label>
+                <input id="sfxVolumeSlider" class="settings-slider" type="range" min="0" max="100" step="1" value="100" aria-label="SFX volume">
+
+                <button type="button" class="vanilla-btn settings-close-btn" data-menu-action="close-settings">Close</button>
+            </div>
+        </div>
+
+        <div class="credit-modal" id="creditModal" aria-hidden="true">
+            <div class="credit-card" role="dialog" aria-modal="true" aria-labelledby="creditTitle">
+                <h2 id="creditTitle">Credits</h2>
+                <p>🎉 Mikotomi Maneneko Matsuri Birthday Game Collection</p>
+                <p>Created with love for Nene’s birthday celebration.</p>
+                <p>Games, art, and audio belong to their respective creators.</p>
+                <button type="button" class="vanilla-btn credit-close-btn" data-menu-action="close-credit">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/audio-manager.js"></script>
+    <script src="./js/main-menu.js"></script>
 </body>
 </html>

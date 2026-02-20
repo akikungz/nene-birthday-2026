@@ -96,6 +96,7 @@ let pendingCursorY = 0;
 
 /**
  * Ensure animated cursor element exists inside the play zone.
+ * @returns {void}
  */
 function ensureCustomCursorElement() {
     if (customCursorEl || !playZone) {
@@ -110,6 +111,10 @@ function ensureCustomCursorElement() {
     playZone.appendChild(customCursorEl);
 }
 
+/**
+ * Show custom cursor sprite.
+ * @returns {void}
+ */
 function showCustomCursor() {
     if (!customCursorEl) {
         return;
@@ -118,6 +123,10 @@ function showCustomCursor() {
     customCursorEl.classList.add("show");
 }
 
+/**
+ * Hide custom cursor sprite and swing state.
+ * @returns {void}
+ */
 function hideCustomCursor() {
     if (!customCursorEl) {
         return;
@@ -152,6 +161,10 @@ function setCustomCursorPosition(event) {
     });
 }
 
+/**
+ * Trigger cursor swing animation for feedback on firing.
+ * @returns {void}
+ */
 function swingCustomCursor() {
     if (!customCursorEl) {
         return;
@@ -164,6 +177,10 @@ function swingCustomCursor() {
     }, CURSOR_SWING_MS);
 }
 
+/**
+ * Bind pointer listeners required by the custom cursor system.
+ * @returns {void}
+ */
 function bindCustomCursorEvents() {
     if (cursorEventsBound || !gameArea) {
         return;
@@ -209,12 +226,22 @@ if (gameArea) {
     });
 }
 
+/**
+ * Hide reward overlay card.
+ * @returns {void}
+ */
 function hideRewardOverlay() {
     if (!resultOverlay) return;
     resultOverlay.classList.remove("show");
     resultOverlay.setAttribute("aria-hidden", "true");
 }
 
+/**
+ * Show reward overlay details for current run.
+ * @param {number} finalScore
+ * @param {boolean} didPass
+ * @returns {void}
+ */
 function showRewardOverlay(finalScore, didPass) {
     if (!resultOverlay || !resultTitle || !resultScore || !prizeBtn || !prizeBtnLabel) {
         return;
@@ -241,6 +268,7 @@ function showRewardOverlay(finalScore, didPass) {
 
 /**
  * Persist unlock as soon as score passes threshold (before game end).
+ * @returns {void}
  */
 function unlockRewardByScoreProgress() {
     if (score > REWARD_THRESHOLD_SCORE) {
@@ -263,19 +291,28 @@ function getScoreHistory() {
     }
 }
 
-/** Show tutorial screen before the game starts. */
+/**
+ * Show tutorial screen before the game starts.
+ * @returns {void}
+ */
 function showTutorial() {
     startScreen.style.display = "none";
     tutorialScreen.style.display = "flex";
 }
 
-/** Continue from tutorial and start the game. */
+/**
+ * Continue from tutorial and start the game.
+ * @returns {void}
+ */
 function beginGame() {
     tutorialScreen.style.display = "none";
     startGame();
 }
 
-/** Reset game state and begin spawning waves. */
+/**
+ * Reset game state and begin spawning waves.
+ * @returns {void}
+ */
 function startGame() {
     bindCustomCursorEvents();
     ensureCustomCursorElement();
@@ -309,7 +346,10 @@ function startGame() {
     });
 }
 
-/** Refresh score and hearts in the HUD. */
+/**
+ * Refresh score and hearts in the HUD.
+ * @returns {void}
+ */
 function updateHUD() {
     scoreDisplay.textContent = score;
     timerDisplay.textContent = formatTime(timeLeft);
@@ -335,7 +375,10 @@ function formatTime(totalSeconds) {
     return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
-/** Start the game countdown timer. */
+/**
+ * Start the game countdown timer.
+ * @returns {void}
+ */
 function startTimer() {
     timerDisplay.textContent = formatTime(timeLeft);
 
@@ -384,7 +427,10 @@ function randomSpawnPosition() {
     return { x, y, fromEdge: true };
 }
 
-/** Spawn one moving target (veggie or bait) and attach hit behavior. */
+/**
+ * Spawn one moving target (veggie or bait) and attach hit behavior.
+ * @returns {void}
+ */
 function spawnTarget() {
     if (isGameOver) {
         return;
@@ -497,7 +543,10 @@ function spawnTarget() {
     target.addEventListener("pointerdown", onTargetHit);
 }
 
-/** Start recurring wave generation every 2 seconds. */
+/**
+ * Start recurring wave generation every 2 seconds.
+ * @returns {void}
+ */
 function startWaveLoop() {
     if (isGameOver) {
         return;
@@ -511,7 +560,10 @@ function startWaveLoop() {
 }
 
 
-/** Spawn a wave based on current score progression. */
+/**
+ * Spawn a wave based on current score progression.
+ * @returns {void}
+ */
 function spawnWave() {
     let amount;
 
@@ -541,7 +593,11 @@ function spawnWave() {
     }
 }
 
-/** Finalize run, persist score history, and show game-over UI. */
+/**
+ * Finalize run, persist score history, and show game-over UI.
+ * @param {"pass" | "timeout" | "fail"} [reason="timeout"]
+ * @returns {void}
+ */
 function endGame(reason = "timeout") {
     if (isGameOver) {
         return;
@@ -648,7 +704,10 @@ if (backMenuBtn) {
     });
 }
 
-/** Render the latest score history into the game-over list. */
+/**
+ * Render the latest score history into the game-over list.
+ * @returns {void}
+ */
 function displayHistory() {
     /** @type {ScoreHistoryItem[]} */
     let history = getScoreHistory();

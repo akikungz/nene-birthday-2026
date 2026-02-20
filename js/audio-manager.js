@@ -1,4 +1,22 @@
 (function () {
+  /**
+   * @typedef {Object} AudioVolumeState
+   * @property {number} bgm
+   * @property {number} sfx
+   */
+
+  /**
+   * @typedef {Object} BgmOptions
+   * @property {number} [volume]
+   * @property {boolean} [loop]
+   */
+
+  /**
+   * @typedef {Object} SfxOptions
+   * @property {number} [volume]
+   * @property {number} [playbackRate]
+   */
+
   const userActivatedEvents = ["pointerdown", "keydown", "touchstart"];
   const STORAGE_BGM_VOLUME_KEY = "game_audio_bgm_volume";
   const STORAGE_SFX_VOLUME_KEY = "game_audio_sfx_volume";
@@ -16,6 +34,11 @@
   let bgmValueLabel = null;
   let sfxValueLabel = null;
 
+  /**
+   * Clamp numeric input to range [0, 1].
+   * @param {unknown} value
+   * @returns {number}
+   */
   function clamp01(value) {
     const number = Number(value);
     if (Number.isNaN(number)) {
@@ -24,6 +47,12 @@
     return Math.min(1, Math.max(0, number));
   }
 
+  /**
+   * Read a persisted volume value from localStorage.
+   * @param {string} storageKey
+   * @param {number} fallback
+   * @returns {number}
+   */
   function loadVolumeSetting(storageKey, fallback) {
     const raw = window.localStorage.getItem(storageKey);
     if (raw === null || raw === "") {
@@ -36,18 +65,37 @@
     return clamp01(parsed);
   }
 
+  /**
+   * Persist a volume value in localStorage.
+   * @param {string} storageKey
+   * @param {number} value
+   * @returns {void}
+   */
   function saveVolumeSetting(storageKey, value) {
     window.localStorage.setItem(storageKey, String(clamp01(value)));
   }
 
+  /**
+   * Get effective BGM volume after global multiplier.
+   * @returns {number}
+   */
   function getEffectiveBgmVolume() {
     return clamp01(bgmBaseVolume * bgmVolumeSetting);
   }
 
+  /**
+   * Get effective SFX volume after global multiplier.
+   * @param {number} [baseVolume=1]
+   * @returns {number}
+   */
   function getEffectiveSfxVolume(baseVolume = 1) {
     return clamp01(clamp01(baseVolume) * sfxVolumeSetting);
   }
 
+  /**
+   * Apply current effective BGM volume to active BGM audio.
+   * @returns {void}
+   */
   function applyBgmVolume() {
     if (!bgmAudio) {
       return;
@@ -55,6 +103,10 @@
     bgmAudio.volume = getEffectiveBgmVolume();
   }
 
+  /**
+   * Sync rendered settings UI controls with current volume state.
+   * @returns {void}
+   */
   function syncSettingsUi() {
     const bgmPercent = Math.round(bgmVolumeSetting * 100);
     const sfxPercent = Math.round(sfxVolumeSetting * 100);
@@ -73,6 +125,11 @@
     }
   }
 
+  /**
+   * Update and persist global BGM volume.
+   * @param {number} value
+   * @returns {void}
+   */
   function setBgmVolume(value) {
     bgmVolumeSetting = clamp01(value);
     saveVolumeSetting(STORAGE_BGM_VOLUME_KEY, bgmVolumeSetting);
@@ -80,12 +137,21 @@
     syncSettingsUi();
   }
 
+  /**
+   * Update and persist global SFX volume.
+   * @param {number} value
+   * @returns {void}
+   */
   function setSfxVolume(value) {
     sfxVolumeSetting = clamp01(value);
     saveVolumeSetting(STORAGE_SFX_VOLUME_KEY, sfxVolumeSetting);
     syncSettingsUi();
   }
 
+  /**
+   * Get current global audio volume state.
+   * @returns {AudioVolumeState}
+   */
   function getVolumes() {
     return {
       bgm: bgmVolumeSetting,
@@ -93,6 +159,10 @@
     };
   }
 
+  /**
+   * Inject settings panel CSS once per page.
+   * @returns {void}
+   */
   function ensureSettingsStyle() {
     if (document.getElementById(SETTINGS_STYLE_ID)) {
       return;
@@ -183,6 +253,10 @@
     document.head.appendChild(style);
   }
 
+  /**
+   * Close floating audio settings panel.
+   * @returns {void}
+   */
   function closeSettingsPanel() {
     if (!settingsRoot) {
       return;
@@ -190,6 +264,10 @@
     settingsRoot.classList.remove("open");
   }
 
+  /**
+   * Open floating audio settings panel.
+   * @returns {void}
+   */
   function openSettingsPanel() {
     if (!settingsRoot) {
       return;
@@ -197,6 +275,10 @@
     settingsRoot.classList.add("open");
   }
 
+  /**
+   * Create floating audio settings UI and bind its events.
+   * @returns {void}
+   */
   function ensureSettingsUi() {
     if (settingsRoot || !document.body) {
       return;
@@ -272,6 +354,10 @@
     syncSettingsUi();
   }
 
+  /**
+   * Mark that user has interacted with the page, allowing autoplay.
+   * @returns {void}
+   */
   function markActivated() {
     if (activated) {
       return;
@@ -280,12 +366,20 @@
     tryPlayBgm();
   }
 
+  /**
+   * Bind one-time activation listeners used for autoplay gating.
+   * @returns {void}
+   */
   function bindActivationEvents() {
     userActivatedEvents.forEach((eventName) => {
       document.addEventListener(eventName, markActivated, { once: true, passive: true });
     });
   }
 
+  /**
+   * Attempt to start (or resume) background music playback.
+   * @returns {void}
+   */
   function tryPlayBgm() {
     if (!bgmAudio || !bgmSrc) {
       return;
@@ -304,6 +398,12 @@
     }
   }
 
+  /**
+   * Initialize page BGM with optional playback settings.
+   * @param {string} src
+   * @param {BgmOptions} [options={}]
+   * @returns {void}
+   */
   function initBgm(src, options = {}) {
     if (!src) {
       return;
@@ -326,6 +426,10 @@
     tryPlayBgm();
   }
 
+  /**
+   * Stop current BGM and reset playback cursor.
+   * @returns {void}
+   */
   function stopBgm() {
     if (!bgmAudio) {
       return;
@@ -334,6 +438,12 @@
     bgmAudio.currentTime = 0;
   }
 
+  /**
+   * Play a one-shot sound effect.
+   * @param {string} src
+   * @param {SfxOptions} [options={}]
+   * @returns {HTMLAudioElement | null}
+   */
   function playSfx(src, options = {}) {
     if (!src) {
       return null;

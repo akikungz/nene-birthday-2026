@@ -164,6 +164,10 @@ function setStatus(message, type = "") {
   }
 }
 
+/**
+ * Refresh score, health, and time values in the HUD.
+ * @returns {void}
+ */
 function updateHud() {
   scoreEl.textContent = String(score);
   healthEl.textContent = formatHealth(health);
@@ -196,11 +200,20 @@ function getBestScore() {
   return Number(localStorage.getItem(bestStorageKey) || 0);
 }
 
+/**
+ * Persist a new best score and update HUD display.
+ * @param {number} value
+ * @returns {void}
+ */
 function setBestScore(value) {
   localStorage.setItem(bestStorageKey, String(value));
   bestEl.textContent = String(value);
 }
 
+/**
+ * Hide reward overlay panel.
+ * @returns {void}
+ */
 function hideRewardOverlay() {
   if (!resultOverlay) {
     return;
@@ -209,6 +222,12 @@ function hideRewardOverlay() {
   resultOverlay.setAttribute("aria-hidden", "true");
 }
 
+/**
+ * Show reward overlay panel with final score context.
+ * @param {number} finalScore
+ * @param {boolean} [didPass=false]
+ * @returns {void}
+ */
 function showRewardOverlay(finalScore, didPass = false) {
   if (!resultOverlay || !resultTitle || !resultScore || !prizeBtn || !prizeBtnLabel) {
     return;
@@ -232,11 +251,19 @@ function showRewardOverlay(finalScore, didPass = false) {
   resultOverlay.setAttribute("aria-hidden", "false");
 }
 
+/**
+ * Resolve currently selected difficulty from UI.
+ * @returns {DifficultyPreset}
+ */
 function getSelectedDifficulty() {
   const selectedKey = difficultyEl?.value || "normal";
   return DIFFICULTY_PRESETS[selectedKey] || DIFFICULTY_PRESETS.normal;
 }
 
+/**
+ * Collect all image asset paths required by the game.
+ * @returns {string[]}
+ */
 function getAllGameAssetPaths() {
   const paths = [`${ASSET_BASE}/background_with_hole.png`, hammerAsset];
 
@@ -262,6 +289,10 @@ function loadImage(src) {
   });
 }
 
+/**
+ * Ensure hammer cursor element exists on the board.
+ * @returns {HTMLImageElement}
+ */
 function ensureHammerElement() {
   if (hammerEl) {
     return hammerEl;
@@ -276,6 +307,11 @@ function ensureHammerElement() {
   return hammerEl;
 }
 
+/**
+ * Move hammer sprite to pointer location.
+ * @param {PointerEvent} event
+ * @returns {void}
+ */
 function setHammerPositionFromEvent(event) {
   if (!hammerEl) {
     return;
@@ -288,6 +324,12 @@ function setHammerPositionFromEvent(event) {
   hammerEl.style.top = `${y}px`;
 }
 
+/**
+ * Move hammer sprite to board-relative coordinates.
+ * @param {number} x
+ * @param {number} y
+ * @returns {void}
+ */
 function setHammerPosition(x, y) {
   if (!hammerEl) {
     return;
@@ -297,6 +339,10 @@ function setHammerPosition(x, y) {
   hammerEl.style.top = `${y}px`;
 }
 
+/**
+ * Trigger hammer swing animation.
+ * @returns {void}
+ */
 function swingHammer() {
   if (!hammerEl) {
     return;
@@ -309,6 +355,11 @@ function swingHammer() {
   }, 90);
 }
 
+/**
+ * Swing hammer over a specific hole shortcut target.
+ * @param {number} holeNumber
+ * @returns {void}
+ */
 function swingHammerAtHole(holeNumber) {
   ensureHammerElement();
 
@@ -334,6 +385,10 @@ function swingHammerAtHole(holeNumber) {
   }, KEYBOARD_HAMMER_VISIBLE_MS);
 }
 
+/**
+ * Setup pointer-based hammer controls for desktop and touch.
+ * @returns {void}
+ */
 function setupHammerControls() {
   ensureHammerElement();
 
@@ -381,6 +436,10 @@ function setupHammerControls() {
   });
 }
 
+/**
+ * Preload all game images and update loading status text.
+ * @returns {Promise<boolean>}
+ */
 function preloadGameAssets() {
   if (assetsReady) {
     return Promise.resolve(true);
@@ -446,6 +505,11 @@ function getHoleNumberFromKeyEvent(event) {
   return null;
 }
 
+/**
+ * Flash a brief visual hint for a keyboard-selected hole.
+ * @param {number} holeNumber
+ * @returns {void}
+ */
 function highlightHoleHint(holeNumber) {
   const hint = boardEl.querySelector(`.hole-hint[data-hole-number="${holeNumber}"]`);
   if (!hint) {
@@ -489,6 +553,11 @@ function canTriggerHoleShortcut(holeNumber) {
   return true;
 }
 
+/**
+ * Determine whether keyboard event target is a typing field.
+ * @param {EventTarget | null} target
+ * @returns {boolean}
+ */
 function isTypingTarget(target) {
   if (!(target instanceof HTMLElement)) {
     return false;
@@ -520,6 +589,11 @@ function cycleDifficulty(step) {
   }
 }
 
+/**
+ * Handle keyboard shortcuts for start/stop, difficulty, and hole hits.
+ * @param {KeyboardEvent} event
+ * @returns {void}
+ */
 function handleGameKeydown(event) {
   if (event.repeat || isTypingTarget(event.target)) {
     return;
@@ -567,6 +641,10 @@ function handleGameKeydown(event) {
   button.click();
 }
 
+/**
+ * Hide currently active mole and clear active-hole references.
+ * @returns {void}
+ */
 function hideCurrentMole() {
   if (!currentHole) {
     return;
@@ -588,6 +666,10 @@ function hideCurrentMole() {
   currentHole = null;
 }
 
+/**
+ * Build all hole DOM nodes and hit handlers.
+ * @returns {void}
+ */
 function buildBoard() {
   boardEl.innerHTML = "";
 
@@ -666,6 +748,10 @@ function buildBoard() {
   ensureHammerElement();
 }
 
+/**
+ * Spawn a mole into a random hole.
+ * @returns {void}
+ */
 function spawnMole() {
   hideCurrentMole();
 
@@ -735,6 +821,10 @@ function stopGame(options = {}) {
   }
 }
 
+/**
+ * Start a new game round when assets are ready.
+ * @returns {void}
+ */
 function startGame() {
   if (!assetsReady) {
     if (assetsLoading) {
@@ -781,6 +871,10 @@ function startGame() {
   }, activeDifficulty.spawnInterval);
 }
 
+/**
+ * Initialize game UI, controls, and preload workflow.
+ * @returns {void}
+ */
 function init() {
   buildBoard();
   setupHammerControls();
