@@ -11,13 +11,12 @@ body {
     overflow: hidden;
     display: grid;
     place-items: center;
-    padding: 20px;
 }
 
 /* Container scales responsively while keeping a 16:9 ratio */
 .game-menu-container {
     position: relative;
-    width: 100%;
+    width: 95%;
     max-width: 1600px;
     aspect-ratio: 16 / 9;
     background-image: url('../assets/game_menu/background.png');

@@ -1,6 +1,7 @@
 const MENU_BGM = "./assets/audio/BGM/bgm_game_menu.mp3";
 const SFX_CHOOSE_GAME = "./assets/audio/SFX/sfx_choose_game.mp3";
 const SFX_REDIRECT_FALLBACK_MS = 2000;
+const MENU_LOADING_FALLBACK_MS = 6000;
 const START_TARGET = "./game/index.html";
 
 if (window.GameAudio) {
@@ -16,6 +17,52 @@ const bgmVolumeSlider = document.getElementById("bgmVolumeSlider");
 const sfxVolumeSlider = document.getElementById("sfxVolumeSlider");
 const bgmVolumeValue = document.getElementById("bgmVolumeValue");
 const sfxVolumeValue = document.getElementById("sfxVolumeValue");
+const menuBgVideo = document.querySelector(".menu-bg-video");
+const menuLoadingStage = document.getElementById("menuLoadingStage");
+
+/**
+ * End loading stage and reveal menu UI.
+ * @returns {void}
+ */
+function finishMenuLoading() {
+  document.body.classList.remove("menu-loading");
+}
+
+/**
+ * Bind loading-stage completion to background video readiness.
+ * Falls back to timeout/error to avoid blocking UI.
+ * @returns {void}
+ */
+function setupMenuLoadingStage() {
+  if (!menuLoadingStage) {
+    return;
+  }
+
+  if (!menuBgVideo) {
+    finishMenuLoading();
+    return;
+  }
+
+  let resolved = false;
+  const done = () => {
+    if (resolved) {
+      return;
+    }
+    resolved = true;
+    finishMenuLoading();
+  };
+
+  if (menuBgVideo.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+    window.requestAnimationFrame(done);
+    return;
+  }
+
+  menuBgVideo.addEventListener("loadeddata", done, { once: true });
+  menuBgVideo.addEventListener("canplay", done, { once: true });
+  menuBgVideo.addEventListener("error", done, { once: true });
+
+  window.setTimeout(done, MENU_LOADING_FALLBACK_MS);
+}
 
 /**
  * Play menu select SFX, then run callback when SFX ends (or fallback timeout).
@@ -211,3 +258,5 @@ document.addEventListener("keydown", (event) => {
     hideSettings();
   }
 });
+
+setupMenuLoadingStage();
