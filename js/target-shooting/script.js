@@ -48,6 +48,7 @@ const resultTitle = document.getElementById("resultTitle");
 const resultScore = document.getElementById("resultScore");
 const prizeBtn = document.getElementById("prizeBtn");
 const prizeBtnLabel = document.getElementById("prizeBtnLabel");
+const backMenuBtn = document.querySelector(".back-menu-btn");
 
 const gameName = "ShootingGame";
 const TIME_LIMIT_SECONDS = 2 * 60 + 22;
@@ -56,6 +57,17 @@ const rewardScoreStorageKey = "game_target_shooting_score";
 const rewardFinishStorageKey = "game_target_shooting_finish";
 const CURSOR_SOURCE = "../assets/shooting/cursor.png";
 const CURSOR_SWING_MS = 90;
+const BGM_TARGET_SHOOTING = "../assets/audio/BGM/bgm_target_shooting.mp3";
+const SFX_SHOOT_AIR = "../assets/audio/SFX/target-shooting/sfx_shoot_air.mp3";
+const SFX_SHOOT_CORRECT = "../assets/audio/SFX/target-shooting/sfx_shoot_correct.mp3";
+const SFX_SHOOT_INCORRECT = "../assets/audio/SFX/target-shooting/sfx_shoot_incorrect.mp3";
+const SFX_WIN_THE_GAME = "../assets/audio/SFX/sfx_win_the_game.mp3";
+const SFX_NEXT_PAGE = "../assets/audio/SFX/sfx_next_page.mp3";
+const SFX_COMBINED_INGREDIENTS = "../assets/audio/SFX/sfx_combined_ingredients.mp3";
+
+if (window.GameAudio) {
+    window.GameAudio.initBgm(BGM_TARGET_SHOOTING, { volume: 0.45 });
+}
 
 let highScore = parseInt(
     localStorage.getItem(`game_${gameName}_maxScore`)
@@ -183,6 +195,17 @@ function bindCustomCursorEvents() {
         setCustomCursorPosition(event);
         showCustomCursor();
         swingCustomCursor();
+    });
+}
+
+if (gameArea) {
+    gameArea.addEventListener("pointerdown", (event) => {
+        if (isGameOver) return;
+        const targetElement = event.target;
+        if (targetElement instanceof HTMLElement && targetElement.closest(".target")) {
+            return;
+        }
+        window.GameAudio?.playSfx(SFX_SHOOT_AIR, { volume: 0.55 });
     });
 }
 
@@ -435,6 +458,7 @@ function spawnTarget() {
         target.style.pointerEvents = "none";
 
         if (isBait) {
+            window.GameAudio?.playSfx(SFX_SHOOT_INCORRECT, { volume: 0.85 });
             lives--;
             updateHUD();
 
@@ -448,6 +472,7 @@ function spawnTarget() {
                 endGame("fail");
             }
         } else {
+            window.GameAudio?.playSfx(SFX_SHOOT_CORRECT, { volume: 0.8 });
             score += 1;
             spawnCount = Math.floor(score / 10) + 1;
 
@@ -545,6 +570,7 @@ function endGame(reason = "timeout") {
 
     const rewardUnlocked = score > REWARD_THRESHOLD_SCORE || didPass;
     if (rewardUnlocked) {
+        window.GameAudio?.playSfx(SFX_WIN_THE_GAME, { volume: 0.9 });
         if (didPass) {
             localStorage.setItem(`game_${gameName}_finish`, "true");
         }
@@ -598,11 +624,27 @@ if (prizeBtn) {
 
         localStorage.setItem(rewardFinishStorageKey, "true");
         localStorage.setItem(`game_${gameName}_finish`, "true");
+        window.GameAudio?.playSfx(SFX_COMBINED_INGREDIENTS, { volume: 0.85 });
         prizeBtn.classList.add("collected");
         prizeBtn.disabled = true;
         if (prizeBtnLabel) {
             prizeBtnLabel.textContent = "Reward claimed";
         }
+    });
+}
+
+if (backMenuBtn) {
+    backMenuBtn.addEventListener("click", (event) => {
+        const href = backMenuBtn.getAttribute("href");
+        if (!href) {
+            return;
+        }
+
+        event.preventDefault();
+        window.GameAudio?.playSfx(SFX_NEXT_PAGE, { volume: 0.9 });
+        window.setTimeout(() => {
+            window.location.href = href;
+        }, 120);
     });
 }
 

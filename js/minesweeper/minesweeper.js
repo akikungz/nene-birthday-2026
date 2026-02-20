@@ -266,6 +266,18 @@ const resultScore = document.getElementById('resultScore');
 const prizeBtn = document.getElementById('prizeBtn');
 const prizeBtnLabel = prizeBtn.querySelector('span');
 const newGameBtn = document.getElementById('newGameBtn');
+const backLink = document.querySelector('.back-link');
+
+const BGM_MINESWEEPER = '../assets/audio/BGM/bgm_minesweeper.mp3';
+const SFX_BIG_SHOVEL = '../assets/audio/SFX/minesweeper/sfx_big_shovel.mp3';
+const SFX_BOOM = '../assets/audio/SFX/minesweeper/sfx_boom.mp3';
+const SFX_OPEN_CHEST = '../assets/audio/SFX/minesweeper/sfx_open_chest.mp3';
+const SFX_NEXT_PAGE = '../assets/audio/SFX/sfx_next_page.mp3';
+const SFX_COMBINED_INGREDIENTS = '../assets/audio/SFX/sfx_combined_ingredients.mp3';
+
+if (window.GameAudio) {
+    window.GameAudio.initBgm(BGM_MINESWEEPER, { volume: 0.45 });
+}
 
 const instantWinUnlockLosses = 5;
 let lossCount = 0;
@@ -287,6 +299,8 @@ if (instantWinBtn) {
 let lastScore = 0;
 const TOUCH_FLAG_HOLD_MS = 420;
 let suppressClickUntil = 0;
+let hasPlayedLoseSfx = false;
+let hasPlayedWinSfx = false;
 
 /**
  * Get a valid difficulty config from the selected dropdown value.
@@ -331,6 +345,8 @@ function initializeGame() {
     statusElement.textContent = '';
     statusElement.classList.remove('win', 'loss');
     resetResultOverlay();
+    hasPlayedLoseSfx = false;
+    hasPlayedWinSfx = false;
 
     renderBoard();
     updateInstantWinButtonVisibility();
@@ -402,7 +418,17 @@ function resetResultOverlay() {
  */
 function revealCellAt(row, col) {
     if (!game || game.gameOver) return;
+    const wasRevealed = game.revealed[row][col];
+    const wasFlagged = game.flagged[row][col];
     game.reveal(row, col);
+    if (!wasRevealed && !wasFlagged) {
+        if (game.gameLost) {
+            hasPlayedLoseSfx = true;
+            window.GameAudio?.playSfx(SFX_BOOM, { volume: 0.95 });
+        } else {
+            window.GameAudio?.playSfx(SFX_BIG_SHOVEL, { volume: 0.65 });
+        }
+    }
     renderBoard();
     updateGameStatus();
 }
@@ -538,6 +564,10 @@ function updateGameStatus() {
         resultOverlay.classList.remove('show');
         resultOverlay.setAttribute('aria-hidden', 'true');
         game.stopTimer();
+        if (!hasPlayedLoseSfx) {
+            hasPlayedLoseSfx = true;
+            window.GameAudio?.playSfx(SFX_BOOM, { volume: 0.95 });
+        }
         registerLoss();
     } else if (game.gameOver && !game.gameLost) {
         statusElement.textContent = 'จบเกม!';
@@ -558,6 +588,10 @@ function updateGameStatus() {
         }
         resultOverlay.classList.add('show');
         resultOverlay.setAttribute('aria-hidden', 'false');
+        if (!hasPlayedWinSfx) {
+            hasPlayedWinSfx = true;
+            window.GameAudio?.playSfx(SFX_OPEN_CHEST, { volume: 0.9 });
+        }
     } else {
         statusElement.textContent = '';
         statusElement.classList.remove('win', 'loss');
@@ -593,10 +627,23 @@ prizeBtn.addEventListener('click', (e) => {
     if (alreadyCollected) return;
     if (!game || !game.gameOver || game.gameLost) return;
     localStorage.setItem('game_minesweeper_finish', 'true');
+    window.GameAudio?.playSfx(SFX_COMBINED_INGREDIENTS, { volume: 0.85 });
     prizeBtn.classList.add('collected');
     prizeBtnLabel.textContent = 'เก็บวัตถุดิบสำเร็จ';
     prizeBtn.disabled = true;
 });
+
+if (backLink) {
+    backLink.addEventListener('click', (e) => {
+        const href = backLink.getAttribute('href');
+        if (!href) return;
+        e.preventDefault();
+        window.GameAudio?.playSfx(SFX_NEXT_PAGE, { volume: 0.9 });
+        setTimeout(() => {
+            window.location.href = href;
+        }, 120);
+    });
+}
 
 window.addEventListener('resize', () => {
     if (game) sizeBoardToArea();

@@ -44,10 +44,19 @@ let milestonePending = false; // true ถ้ากำลังรอรางว
 const REWARD_THRESHOLD_SCORE = 22;
 const rewardScoreStorageKey = 'game_match_the_cards_score';
 const rewardFinishStorageKey = 'game_match_the_cards_finish';
+const BGM_MATCH_THE_CARDS = '../assets/audio/BGM/bgm_match_the_cards.mp3';
+const SFX_MATCH_CORRECT = '../assets/audio/SFX/Picture_Match/sfx_picture_match_correct.mp3';
+const SFX_NEXT_PAGE = '../assets/audio/SFX/sfx_next_page.mp3';
+const SFX_COMBINED_INGREDIENTS = '../assets/audio/SFX/sfx_combined_ingredients.mp3';
+const SFX_WIN_THE_GAME = '../assets/audio/SFX/sfx_win_the_game.mp3';
 let lastRoundScore = 0;
 let lastRewardEligible = false;
 // URL สำหรับกลับเมนู (แก้ค่าตามโครงสร้างโปรเจกต์ของคุณ)
 const BACK_TO_MENU_URL = './index.html';
+
+if (window.GameAudio) {
+    window.GameAudio.initBgm(BGM_MATCH_THE_CARDS, { volume: 0.45 });
+}
 
 /* ================================
    ฟังก์ชันเริ่มต้นเกม (Initialize Game)
@@ -237,6 +246,7 @@ function handleMatchedCards(card1, card2) {
 
     // เก็บไพ่ที่จับคู่
     matchedCards.push(card1, card2);
+    window.GameAudio?.playSfx(SFX_MATCH_CORRECT, { volume: 0.8 });
 
     // รีเซ็ต
     openedCards = [];
@@ -273,6 +283,7 @@ function handleRoundCompletion() {
 
     // ถ้าถึง 3 รอบ ให้เล่นอนิเมชันหลอดเต็ม แล้วแสดง floating reward (มอบรางวัลพิเศษ)
     if (roundsCompleted >= 3) {
+        window.GameAudio?.playSfx(SFX_WIN_THE_GAME, { volume: 0.85 });
         const fill = document.getElementById('progressFill');
         if (fill) {
             // เพิ่มคลาสเพื่อเล่นอนิเมชัน
@@ -532,6 +543,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (alreadyCollected) return;
 
             localStorage.setItem(rewardFinishStorageKey, 'true');
+            window.GameAudio?.playSfx(SFX_COMBINED_INGREDIENTS, { volume: 0.85 });
             updateRewardClaimButton();
         });
     }
@@ -545,9 +557,25 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnBackToMenu) btnBackToMenu.addEventListener('click', () => {
         // ถ้ามี URL ตั้งไว้ ให้ไปหน้าเมนู
         if (BACK_TO_MENU_URL) {
-            window.location.href = BACK_TO_MENU_URL;
+            window.GameAudio?.playSfx(SFX_NEXT_PAGE, { volume: 0.9 });
+            setTimeout(() => {
+                window.location.href = BACK_TO_MENU_URL;
+            }, 120);
         }
     });
+
+    const backMenuLink = document.querySelector('.back-menu-fixed');
+    if (backMenuLink) {
+        backMenuLink.addEventListener('click', (event) => {
+            const href = backMenuLink.getAttribute('href');
+            if (!href) return;
+            event.preventDefault();
+            window.GameAudio?.playSfx(SFX_NEXT_PAGE, { volume: 0.9 });
+            setTimeout(() => {
+                window.location.href = href;
+            }, 120);
+        });
+    }
 
     // เริ่มเกม
     initGame();
