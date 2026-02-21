@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import MainMenu from './pages/MainMenu';
 import GameMenu from './pages/GameMenu';
@@ -9,9 +9,25 @@ import WhackAMole from './pages/games/WhackAMole';
 import { triggerBackgroundPreload } from './utils/preloadAssets';
 
 function App() {
+  const [loading, setLoading] = useState(true);
+  const [progress, setProgress] = useState(0);
+
   useEffect(() => {
-    triggerBackgroundPreload();
+    triggerBackgroundPreload((p) => {
+      setProgress(p);
+    }).then(() => {
+      setTimeout(() => setLoading(false), 300);
+    });
   }, []);
+
+  if (loading) {
+    return (
+      <div className="global-loading-screen">
+        <div className="global-loading-spinner"></div>
+        <p className="global-loading-text">กำลังเตรียมข้อมูลให้พร้อมเล่น... {progress}%</p>
+      </div>
+    );
+  }
 
   return (
     <BrowserRouter>
