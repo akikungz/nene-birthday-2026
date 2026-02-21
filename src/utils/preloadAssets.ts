@@ -34,8 +34,13 @@ export const triggerBackgroundPreload = (onProgress?: (progress: number) => void
                         .catch(handleLoad);
                 } else if (src.endsWith('.png') || src.endsWith('.jpg') || src.endsWith('.svg')) {
                     const img = new Image();
-                    img.onload = handleLoad;
-                    img.onerror = handleLoad;
+                    const cleanup = () => {
+                        img.onload = null;
+                        img.onerror = null;
+                        handleLoad();
+                    };
+                    img.onload = cleanup;
+                    img.onerror = cleanup;
                     img.src = src;
                 } else {
                     handleLoad();
@@ -46,7 +51,11 @@ export const triggerBackgroundPreload = (onProgress?: (progress: number) => void
         if (document.readyState === 'complete') {
             startPreload();
         } else {
-            window.addEventListener('load', startPreload);
+            const onWindowLoad = () => {
+                window.removeEventListener('load', onWindowLoad);
+                startPreload();
+            };
+            window.addEventListener('load', onWindowLoad);
         }
     });
 };

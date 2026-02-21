@@ -19,7 +19,7 @@ const MainMenu: React.FC = () => {
         }, 800);
 
         // Resume audio if returning strictly (AudioManager handles activation natively)
-        audioManager.initBgm('/assets/bgm_main_menu.mp3', { loop: true }); // Need to verify correct BGM path if it existed.
+        audioManager.initBgm('/assets/audio/BGM/bgm_main_menu.mp3', { loop: true });
 
         const vols = audioManager.getVolumes();
         setBgmVolume(Math.round(vols.bgm * 100));
@@ -29,7 +29,7 @@ const MainMenu: React.FC = () => {
     }, []);
 
     const handleStartGame = () => {
-        audioManager.playSfx('/assets/sfx_click.mp3'); // Example sfx
+        audioManager.playSfx('/assets/audio/SFX/sfx_choose_game.mp3');
         navigate('/game');
     };
 
@@ -72,9 +72,9 @@ const MainMenu: React.FC = () => {
             </header>
 
             <div className="main-menu-actions" aria-label="เมนูหลัก">
-                <button type="button" className="vanilla-btn" onClick={() => { audioManager.playSfx('/assets/sfx_click.mp3'); setShowSettings(true); }}>ตั้งค่า</button>
+                <button type="button" className="vanilla-btn" onClick={() => { audioManager.playSfx('/assets/audio/SFX/sfx_next_page.mp3'); setShowSettings(true); }}>ตั้งค่า</button>
                 <button type="button" className="vanilla-btn" onClick={handleStartGame}>เริ่มเกม</button>
-                <button type="button" className="vanilla-btn" onClick={() => { audioManager.playSfx('/assets/sfx_click.mp3'); setShowCredit(true); }}>เครดิต</button>
+                <button type="button" className="vanilla-btn" onClick={() => { audioManager.playSfx('/assets/audio/SFX/sfx_next_page.mp3'); setShowCredit(true); }}>เครดิต</button>
             </div>
 
             {/* Settings Modal */}
