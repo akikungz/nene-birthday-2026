@@ -289,18 +289,18 @@
     settingsRoot = document.createElement("div");
     settingsRoot.className = "audio-settings-root";
     settingsRoot.innerHTML = `
-      <button type="button" class="audio-settings-toggle" aria-label="Audio settings" title="Audio settings">🔊</button>
-      <div class="audio-settings-panel" role="dialog" aria-label="Audio settings">
-        <h3 class="audio-settings-title">Audio Settings</h3>
+      <button type="button" class="audio-settings-toggle" aria-label="ตั้งค่าเสียง" title="ตั้งค่าเสียง">🔊</button>
+      <div class="audio-settings-panel" role="dialog" aria-label="ตั้งค่าเสียง">
+        <h3 class="audio-settings-title">ตั้งค่าเสียง</h3>
         <div class="audio-settings-row">
-          <span class="audio-settings-label">BGM Volume</span>
+          <span class="audio-settings-label">ระดับเสียงเพลงพื้นหลัง</span>
           <span class="audio-settings-value" data-audio-value="bgm">50%</span>
-          <input class="audio-settings-slider" data-audio-slider="bgm" type="range" min="0" max="100" step="1" value="50" aria-label="BGM volume">
+          <input class="audio-settings-slider" data-audio-slider="bgm" type="range" min="0" max="100" step="1" value="50" aria-label="ระดับเสียงเพลงพื้นหลัง">
         </div>
         <div class="audio-settings-row">
-          <span class="audio-settings-label">SFX Volume</span>
+          <span class="audio-settings-label">ระดับเสียงเอฟเฟกต์</span>
           <span class="audio-settings-value" data-audio-value="sfx">100%</span>
-          <input class="audio-settings-slider" data-audio-slider="sfx" type="range" min="0" max="100" step="1" value="100" aria-label="SFX volume">
+          <input class="audio-settings-slider" data-audio-slider="sfx" type="range" min="0" max="100" step="1" value="100" aria-label="ระดับเสียงเอฟเฟกต์">
         </div>
       </div>
     `;

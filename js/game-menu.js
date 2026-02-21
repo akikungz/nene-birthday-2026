@@ -10,6 +10,27 @@ if (window.GameAudio) {
 
 let isRedirecting = false;
 
+/**
+ * @returns {HTMLElement | null}
+ */
+function getLoadingOverlay() {
+  const overlay = document.getElementById("loadingOverlay");
+  return overlay instanceof HTMLElement ? overlay : null;
+}
+
+/**
+ * @returns {void}
+ */
+function showLoadingOverlay() {
+  const overlay = getLoadingOverlay();
+  if (!overlay) {
+    return;
+  }
+
+  overlay.classList.add("show");
+  overlay.setAttribute("aria-hidden", "false");
+}
+
 /** @returns {HTMLElement | null} */
 function getRewardContainer() {
   const reward = document.querySelector(".reward");
@@ -94,7 +115,7 @@ function syncRewardUnlockState() {
 
     item.classList.toggle("locked", !unlocked);
     item.classList.toggle("unlocked", unlocked);
-    item.setAttribute("aria-label", unlocked ? "Reward unlocked" : "Reward locked");
+    item.setAttribute("aria-label", unlocked ? "ปลดล็อกรางวัลแล้ว" : "รางวัลยังล็อกอยู่");
   });
 
   if (!rewardContainer) {
@@ -106,7 +127,7 @@ function syncRewardUnlockState() {
     clearCakeMergedStored();
     rewardContainer.classList.remove("is-merging", "is-merged", "merge-ready");
     rewardContainer.setAttribute("aria-disabled", "true");
-    rewardContainer.setAttribute("title", "Unlock all rewards to merge into a cake");
+    rewardContainer.setAttribute("title", "ปลดล็อกรางวัลให้ครบก่อนจึงจะรวมเป็นเค้กได้");
     return;
   }
 
@@ -117,7 +138,7 @@ function syncRewardUnlockState() {
   rewardContainer.setAttribute("aria-disabled", merged ? "true" : "false");
   rewardContainer.setAttribute(
     "title",
-    merged ? "Cake completed!" : "All rewards unlocked! Click to merge into a cake",
+    merged ? "ทำเค้กเสร็จแล้ว!" : "ปลดล็อกรางวัลครบแล้ว! คลิกเพื่อรวมเป็นเค้ก",
   );
 }
 
@@ -186,6 +207,7 @@ function handleGameLinkClick(event, link) {
   };
 
   const sfx = window.GameAudio?.playSfx(SFX_CHOOSE_GAME, { volume: 0.9 });
+  showLoadingOverlay();
 
   if (!sfx) {
     window.setTimeout(navigate, 150);

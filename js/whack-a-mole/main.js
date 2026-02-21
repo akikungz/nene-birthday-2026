@@ -59,9 +59,9 @@ const TOUCH_HAMMER_VISIBLE_MS = 220;
 
 /** @type {Record<string, DifficultyPreset>} */
 const DIFFICULTY_PRESETS = {
-  easy: { label: "Easy", moleMinTime: 750, moleMaxTime: 1300, spawnInterval: 900 },
-  normal: { label: "Normal", moleMinTime: 750, moleMaxTime: 1300, spawnInterval: 900 },
-  hard: { label: "Hard", moleMinTime: 260, moleMaxTime: 700, spawnInterval: 420 },
+  easy: { label: "ง่าย", moleMinTime: 750, moleMaxTime: 1300, spawnInterval: 900 },
+  normal: { label: "ปกติ", moleMinTime: 750, moleMaxTime: 1300, spawnInterval: 900 },
+  hard: { label: "ยาก", moleMinTime: 260, moleMaxTime: 700, spawnInterval: 420 },
 };
 const DIFFICULTY_ORDER = ["easy", "normal", "hard"];
 
@@ -234,17 +234,17 @@ function showRewardOverlay(finalScore, didPass = false) {
   }
 
   const alreadyCollected = localStorage.getItem(rewardFinishStorageKey) === "true";
-  resultTitle.textContent = didPass ? "Pass! Reward unlocked!" : "Reward unlocked!";
-  resultScore.textContent = `Score: ${finalScore} (Need > ${REWARD_THRESHOLD_SCORE} or Pass)`;
+  resultTitle.textContent = didPass ? "ผ่านด่าน! ปลดล็อกรางวัลแล้ว!" : "ปลดล็อกรางวัลแล้ว!";
+  resultScore.textContent = `คะแนน: ${finalScore} (ต้องมากกว่า ${REWARD_THRESHOLD_SCORE} หรือผ่านด่าน)`;
 
   if (alreadyCollected) {
     prizeBtn.classList.add("collected");
     prizeBtn.disabled = true;
-    prizeBtnLabel.textContent = "Reward already collected";
+    prizeBtnLabel.textContent = "เก็บรางวัลไปแล้ว";
   } else {
     prizeBtn.classList.remove("collected");
     prizeBtn.disabled = false;
-    prizeBtnLabel.textContent = "Claim Reward";
+    prizeBtnLabel.textContent = "เก็บรางวัล";
   }
 
   resultOverlay.classList.add("show");
@@ -454,13 +454,13 @@ function preloadGameAssets() {
 
   assetsLoading = true;
   startBtn.disabled = true;
-  setStatus(`Loading images... ${loadedCount}/${assetPaths.length}`);
+  setStatus(`กำลังโหลดรูปภาพ... ${loadedCount}/${assetPaths.length}`);
 
   preloadPromise = Promise.all(
     assetPaths.map((src) =>
       loadImage(src).then(() => {
         loadedCount += 1;
-        setStatus(`Loading images... ${loadedCount}/${assetPaths.length}`);
+        setStatus(`กำลังโหลดรูปภาพ... ${loadedCount}/${assetPaths.length}`);
       }),
     ),
   )
@@ -468,14 +468,14 @@ function preloadGameAssets() {
       assetsReady = true;
       assetsLoading = false;
       startBtn.disabled = false;
-      setStatus("Images ready! Press Start and bonk the totems!", "good");
+      setStatus("โหลดรูปเสร็จแล้ว! กดเริ่มเกมแล้วตีโทเท็มได้เลย!", "good");
       return true;
     })
     .catch((error) => {
       assetsReady = false;
       assetsLoading = false;
       startBtn.disabled = true;
-      setStatus("Failed to load game images. Please refresh and try again.", "danger");
+      setStatus("โหลดรูปเกมไม่สำเร็จ กรุณารีเฟรชแล้วลองใหม่", "danger");
       console.error(error);
       return false;
     });
@@ -583,9 +583,9 @@ function cycleDifficulty(step) {
   difficultyEl.value = DIFFICULTY_ORDER[nextIndex];
   activeDifficulty = getSelectedDifficulty();
   if (assetsReady) {
-    setStatus(`Difficulty set to ${activeDifficulty.label}. Press Start and bonk the totems!`);
+    setStatus(`ตั้งค่าความยากเป็น ${activeDifficulty.label} แล้ว กดเริ่มเกมได้เลย!`);
   } else {
-    setStatus(`Difficulty: ${activeDifficulty.label}. Loading images...`);
+    setStatus(`ระดับความยาก: ${activeDifficulty.label} กำลังโหลดรูปภาพ...`);
   }
 }
 
@@ -613,7 +613,7 @@ function handleGameKeydown(event) {
 
   if (running && event.key === "Escape") {
     event.preventDefault();
-    stopGame({ message: `Game stopped. Final score: ${score}. Press Start to play again!` });
+    stopGame({ message: `หยุดเกมแล้ว คะแนนสุดท้าย: ${score} กดเริ่มเกมเพื่อเล่นอีกครั้ง!` });
     return;
   }
 
@@ -688,7 +688,7 @@ function buildBoard() {
     button.type = "button";
     button.dataset.holeNumber = String(i + 1);
     button.dataset.isUp = "false";
-    button.setAttribute("aria-label", `Hole ${i + 1} (key ${i + 1})`);
+    button.setAttribute("aria-label", `หลุมที่ ${i + 1} (ปุ่ม ${i + 1})`);
 
     const hint = document.createElement("span");
     hint.className = "hole-hint";
@@ -698,7 +698,7 @@ function buildBoard() {
 
     const mole = document.createElement("img");
     mole.className = "mole";
-    mole.alt = "Totem";
+    mole.alt = "โทเท็ม";
 
     button.appendChild(mole);
 
@@ -712,13 +712,13 @@ function buildBoard() {
       if (DANGEROUS_CHARACTERS.has(char)) {
         window.GameAudio?.playSfx(SFX_WHACK_INCORRECT, { volume: 0.85 });
         health -= 1;
-        setStatus(`Ouch! ${char} hit you. -1❤️`, "danger");
+        setStatus(`โอ๊ย! ${char} โดนผิดเป้าลด -1❤️`, "danger");
       } else if (VEGETABLE_CHARACTERS.has(char)) {
         window.GameAudio?.playSfx(SFX_WHACK_CORRECT, { volume: 0.8 });
         score += 1;
-        setStatus(`Nice! ${char} +1 score`, "good");
+        setStatus(`เยี่ยม! ตี ${char} ได้ +1 คะแนน`, "good");
       } else {
-        setStatus("Hit!", "good");
+        setStatus("โดนเป้า!", "good");
       }
 
       updateHud();
@@ -737,7 +737,7 @@ function buildBoard() {
       }, HIT_ANIMATION_MS);
 
       if (health <= 0) {
-        stopGame({ message: `Out of hearts! Final score: ${score}. Try again!`, statusType: "danger" });
+        stopGame({ message: `พลังชีวิตหมดแล้ว! คะแนนสุดท้าย: ${score} ลองอีกครั้งนะ!`, statusType: "danger" });
       }
     });
 
@@ -777,7 +777,7 @@ function spawnMole() {
   clearTimeout(hideTimer);
   hideTimer = window.setTimeout(() => {
     if (nextButton.dataset.isUp === "true") {
-      setStatus("Too slow! Bonk faster 👀", "danger");
+      setStatus("ช้าไปหน่อย! ตีให้ไวขึ้น 👀", "danger");
     }
     hideCurrentMole();
   }, rand(activeDifficulty.moleMinTime, activeDifficulty.moleMaxTime));
@@ -806,11 +806,11 @@ function stopGame(options = {}) {
   const best = getBestScore();
   if (score > best) {
     setBestScore(score);
-    setStatus(`Time's up! New best score: ${score} 🎉`, "good");
+    setStatus(`หมดเวลา! ทำสถิติสูงสุดใหม่: ${score} 🎉`, "good");
   } else if (message) {
     setStatus(message, statusType);
   } else {
-    setStatus(`Time's up! Final score: ${score}. Try again!`);
+    setStatus(`หมดเวลา! คะแนนสุดท้าย: ${score} ลองอีกครั้งนะ!`);
   }
 
   if (lastFinalScore > REWARD_THRESHOLD_SCORE || lastGamePassed) {
@@ -828,9 +828,9 @@ function stopGame(options = {}) {
 function startGame() {
   if (!assetsReady) {
     if (assetsLoading) {
-      setStatus("Loading images... please wait.");
+      setStatus("กำลังโหลดรูปภาพ... กรุณารอสักครู่");
     } else {
-      setStatus("Preparing game assets...", "danger");
+      setStatus("กำลังเตรียมไฟล์เกม...", "danger");
       preloadGameAssets();
     }
     return;
@@ -849,7 +849,7 @@ function startGame() {
     difficultyEl.disabled = true;
   }
   activeDifficulty = getSelectedDifficulty();
-  setStatus(`Game started (${activeDifficulty.label})! Whack every totem you can!`);
+  setStatus(`เริ่มเกมแล้ว (${activeDifficulty.label})! ตีโทเท็มให้ได้มากที่สุด!`);
 
   updateHud();
   hideCurrentMole();
@@ -894,9 +894,9 @@ function init() {
       if (!running) {
         activeDifficulty = getSelectedDifficulty();
         if (assetsReady) {
-          setStatus(`Difficulty set to ${activeDifficulty.label}. Press Start and bonk the totems!`);
+          setStatus(`ตั้งค่าความยากเป็น ${activeDifficulty.label} แล้ว กดเริ่มเกมได้เลย!`);
         } else {
-          setStatus(`Difficulty: ${activeDifficulty.label}. Loading images...`);
+          setStatus(`ระดับความยาก: ${activeDifficulty.label} กำลังโหลดรูปภาพ...`);
         }
       }
     });
@@ -927,7 +927,7 @@ function init() {
       prizeBtn.classList.add("collected");
       prizeBtn.disabled = true;
       if (prizeBtnLabel) {
-        prizeBtnLabel.textContent = "Reward claimed";
+        prizeBtnLabel.textContent = "เก็บรางวัลแล้ว";
       }
     });
   }

@@ -249,17 +249,17 @@ function showRewardOverlay(finalScore, didPass) {
 
     const alreadyCollected = localStorage.getItem(rewardFinishStorageKey) === "true";
 
-    resultTitle.textContent = didPass ? "Pass! Reward unlocked!" : "Reward unlocked!";
-    resultScore.textContent = `Score: ${finalScore} (Need > ${REWARD_THRESHOLD_SCORE} or Pass)`;
+    resultTitle.textContent = didPass ? "ผ่านด่าน! ปลดล็อกรางวัลแล้ว!" : "ปลดล็อกรางวัลแล้ว!";
+    resultScore.textContent = `คะแนน: ${finalScore} (ต้องมากกว่า ${REWARD_THRESHOLD_SCORE} หรือผ่านด่าน)`;
 
     if (alreadyCollected) {
         prizeBtn.classList.add("collected");
         prizeBtn.disabled = true;
-        prizeBtnLabel.textContent = "Reward already collected";
+        prizeBtnLabel.textContent = "เก็บรางวัลไปแล้ว";
     } else {
         prizeBtn.classList.remove("collected");
         prizeBtn.disabled = false;
-        prizeBtnLabel.textContent = "Collect Reward";
+        prizeBtnLabel.textContent = "เก็บรางวัล";
     }
 
     resultOverlay.classList.add("show");
@@ -684,7 +684,7 @@ if (prizeBtn) {
         prizeBtn.classList.add("collected");
         prizeBtn.disabled = true;
         if (prizeBtnLabel) {
-            prizeBtnLabel.textContent = "Reward claimed";
+            prizeBtnLabel.textContent = "เก็บรางวัลแล้ว";
         }
     });
 }

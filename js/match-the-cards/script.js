@@ -417,7 +417,7 @@ function resetRoundResultUI() {
         btnCollectReward.style.display = 'none';
         btnCollectReward.disabled = true;
         btnCollectReward.classList.remove('collected');
-        btnCollectReward.textContent = 'Collect Reward';
+        btnCollectReward.textContent = 'เก็บรางวัล';
     }
 }
 
@@ -440,11 +440,11 @@ function updateRewardClaimButton() {
     const alreadyCollected = isRewardCollected();
     if (alreadyCollected) {
         btnCollectReward.classList.add('collected');
-        btnCollectReward.textContent = 'Reward already collected';
+        btnCollectReward.textContent = 'เก็บรางวัลไปแล้ว';
         btnCollectReward.disabled = true;
     } else {
         btnCollectReward.classList.remove('collected');
-        btnCollectReward.textContent = 'Collect Reward';
+        btnCollectReward.textContent = 'เก็บรางวัล';
         btnCollectReward.disabled = false;
     }
 }
@@ -482,7 +482,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setRewardCollected();
             window.GameAudio?.playSfx(SFX_COMBINED_INGREDIENTS, { volume: 0.85 });
             btnCollectReward.classList.add('collected');
-            btnCollectReward.textContent = 'Reward claimed';
+            btnCollectReward.textContent = 'เก็บรางวัลแล้ว';
             btnCollectReward.disabled = true;
         });
     }

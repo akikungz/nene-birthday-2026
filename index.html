@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,9 +8,9 @@
 </head>
 <body class="menu-loading">
     <div class="game-menu-container">
-        <div class="menu-loading-stage" id="menuLoadingStage" aria-live="polite" aria-label="Loading main menu">
+        <div class="menu-loading-stage" id="menuLoadingStage" aria-live="polite" aria-label="กำลังโหลดเมนูหลัก">
             <div class="menu-loading-spinner" aria-hidden="true"></div>
-            <p class="menu-loading-text">Loading festival background...</p>
+            <p class="menu-loading-text">กำลังโหลดฉากเทศกาล...</p>
         </div>
 
         <video
@@ -20,49 +20,48 @@
             loop
             playsinline
             preload="auto"
-            aria-label="Animated main menu background"
+            aria-label="พื้นหลังเมนูหลักแบบเคลื่อนไหว"
         >
             <source src="./assets/main_menu_background_animated.mp4" type="video/mp4">
         </video>
 
-        <header class="menu-title" aria-label="Game title">
+        <header class="menu-title" aria-label="ชื่อเกม">
             <p class="menu-title-small">Mikotomi Maneneko</p>
             <h1 class="menu-title-main">Matsuri</h1>
         </header>
 
-        <div class="main-menu-actions" aria-label="Main menu actions">
-            <button type="button" class="vanilla-btn" data-menu-action="settings">Settings</button>
-            <button type="button" class="vanilla-btn" data-menu-action="start">Start</button>
-            <button type="button" class="vanilla-btn" data-menu-action="credit">Credit</button>
+        <div class="main-menu-actions" aria-label="เมนูหลัก">
+            <button type="button" class="vanilla-btn" data-menu-action="settings">ตั้งค่า</button>
+            <button type="button" class="vanilla-btn" data-menu-action="start">เริ่มเกม</button>
+            <button type="button" class="vanilla-btn" data-menu-action="credit">เครดิต</button>
         </div>
 
         <div class="settings-modal" id="settingsModal" aria-hidden="true">
             <div class="settings-card" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
-                <h2 id="settingsTitle">Settings</h2>
+                <h2 id="settingsTitle">ตั้งค่า</h2>
 
                 <label class="settings-row" for="bgmVolumeSlider">
-                    <span>BGM Volume</span>
+                    <span>ระดับเสียงเพลงพื้นหลัง</span>
                     <strong id="bgmVolumeValue">100%</strong>
                 </label>
-                <input id="bgmVolumeSlider" class="settings-slider" type="range" min="0" max="100" step="1" value="100" aria-label="BGM volume">
+                <input id="bgmVolumeSlider" class="settings-slider" type="range" min="0" max="100" step="1" value="100" aria-label="ระดับเสียงเพลงพื้นหลัง">
 
                 <label class="settings-row" for="sfxVolumeSlider">
-                    <span>SFX Volume</span>
+                    <span>ระดับเสียงเอฟเฟกต์</span>
                     <strong id="sfxVolumeValue">100%</strong>
                 </label>
-                <input id="sfxVolumeSlider" class="settings-slider" type="range" min="0" max="100" step="1" value="100" aria-label="SFX volume">
+                <input id="sfxVolumeSlider" class="settings-slider" type="range" min="0" max="100" step="1" value="100" aria-label="ระดับเสียงเอฟเฟกต์">
 
-                <button type="button" class="vanilla-btn settings-close-btn" data-menu-action="close-settings">Close</button>
+                <button type="button" class="vanilla-btn settings-close-btn" data-menu-action="close-settings">ปิด</button>
             </div>
         </div>
 
         <div class="credit-modal" id="creditModal" aria-hidden="true">
             <div class="credit-card" role="dialog" aria-modal="true" aria-labelledby="creditTitle">
-                <h2 id="creditTitle">Credits</h2>
-                <p>🎉 Mikotomi Maneneko Matsuri Birthday Game Collection</p>
-                <p>Created with love for Nene’s birthday celebration.</p>
-                <p>Games, art, and audio belong to their respective creators.</p>
-                <button type="button" class="vanilla-btn credit-close-btn" data-menu-action="close-credit">Close</button>
+                <h2 id="creditTitle">เครดิต</h2>
+                <p>🎉 คอลเลกชันเกมวันเกิด Mikotomi Maneneko</p>
+                <p>สร้างด้วยความรักเพื่อฉลองวันเกิดของเนเนะ</p>
+                <button type="button" class="vanilla-btn credit-close-btn" data-menu-action="close-credit">ปิด</button>
             </div>
         </div>
     </div>

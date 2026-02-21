@@ -1,52 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../css/game-menu.css">
-    <title>Mikotomi Maneneko Matsuri - Game Menu</title>
+    <title>Mikotomi Maneneko Matsuri - เมนูเกม</title>
 </head>
 <body>
     <div class="game-menu-container">
-        <a href="../index.html" class="back-main-btn" aria-label="Back to main menu">← Main Menu</a>
+        <a href="../index.html" class="back-main-btn" aria-label="กลับไปเมนูหลัก">← เมนูหลัก</a>
 
-        <img src="../assets/game_menu/tree_props.png" alt="Trees overlay" class="asset trees-overlay">
+        <img src="../assets/game_menu/tree_props.png" alt="ต้นไม้ตกแต่ง" class="asset trees-overlay">
 
-        <img src="../assets/game_menu/tower.png" alt="Center Tower" class="asset tower">
+        <img src="../assets/game_menu/tower.png" alt="ซุ้มกลาง" class="asset tower">
 
         <a href="target-shooting.html" class="asset-link target-shooting">
-            <img src="../assets/game_menu/target_shooting.png" alt="Play Target Shooting" class="asset interactive">
+            <img src="../assets/game_menu/target_shooting.png" alt="เล่นเกมยิงเป้า" class="asset interactive">
         </a>
 
         <a href="whack-a-mole.html" class="asset-link whack-a-mole">
-            <img src="../assets/game_menu/whack_a_mole.png" alt="Play Whack a Mole" class="asset interactive">
+            <img src="../assets/game_menu/whack_a_mole.png" alt="เล่นเกมตีตัวตุ่น" class="asset interactive">
         </a>
 
         <a href="minesweeper.html" class="asset-link minesweeper">
-            <img src="../assets/game_menu/minesweeper.png" alt="Play Minesweeper" class="asset interactive">
+            <img src="../assets/game_menu/minesweeper.png" alt="เล่นเกมกวาดทุ่นระเบิด" class="asset interactive">
         </a>
 
         <a href="match-the-cards.html" class="asset-link match-cards">
-            <img src="../assets/game_menu/match_the_cards.png" alt="Play Match the Cards" class="asset interactive">
+            <img src="../assets/game_menu/match_the_cards.png" alt="เล่นเกมจับคู่การ์ด" class="asset interactive">
         </a>
 
-        <img src="../assets/game_menu/nene_center.png" alt="Character" class="asset character">
+        <img src="../assets/game_menu/nene_center.png" alt="ตัวละครเนเนะ" class="asset character">
 
-        <div class="reward" role="button" tabindex="0" aria-label="Merge rewards into cake">
-            <div class="reward-item locked" data-reward-keys="game_match_the_cards_finish" title="Flavor reward">
-                <img src="../assets/cake-reward/flaver.png" alt="Flavor" class="reward-icon">
+        <div class="reward" role="button" tabindex="0" aria-label="รวมวัตถุดิบให้เป็นเค้ก">
+            <div class="reward-item locked" data-reward-keys="game_match_the_cards_finish" title="รางวัลแป้งเค้ก">
+                <img src="../assets/cake-reward/flaver.png" alt="แป้งเค้ก" class="reward-icon">
             </div>
-            <div class="reward-item locked" data-reward-keys="game_minesweeper_finish" title="Sugar reward">
-                <img src="../assets/cake-reward/sugar.png" alt="Sugar" class="reward-icon">
+            <div class="reward-item locked" data-reward-keys="game_minesweeper_finish" title="รางวัลน้ำตาล">
+                <img src="../assets/cake-reward/sugar.png" alt="น้ำตาล" class="reward-icon">
             </div>
-            <div class="reward-item locked" data-reward-keys="game_target_shooting_finish,game_ShootingGame_finish" title="Milk reward">
-                <img src="../assets/cake-reward/milk.png" alt="Milk" class="reward-icon">
+            <div class="reward-item locked" data-reward-keys="game_target_shooting_finish,game_ShootingGame_finish" title="รางวัลนม">
+                <img src="../assets/cake-reward/milk.png" alt="นม" class="reward-icon">
             </div>
-            <div class="reward-item locked" data-reward-keys="game_whack_a_mole_finish" title="Egg reward">
-                <img src="../assets/cake-reward/egg.png" alt="Egg" class="reward-icon">
+            <div class="reward-item locked" data-reward-keys="game_whack_a_mole_finish" title="รางวัลไข่">
+                <img src="../assets/cake-reward/egg.png" alt="ไข่" class="reward-icon">
             </div>
 
-            <img src="../assets/cake-reward/cake.png" alt="Completed birthday cake" class="reward-cake" aria-hidden="true">
+            <img src="../assets/cake-reward/cake.png" alt="เค้กวันเกิดที่ทำเสร็จแล้ว" class="reward-cake" aria-hidden="true">
+        </div>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay" aria-hidden="true">
+        <div class="loading-card" role="status" aria-live="polite">
+            <span class="loading-spinner" aria-hidden="true"></span>
+            <p class="loading-text">กำลังโหลดเกม...</p>
         </div>
     </div>
     

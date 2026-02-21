@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<title>Mikotomi Maneneko Matsuri - Target Shooting</title>
+<title>Mikotomi Maneneko Matsuri - เกมยิงเป้า</title>
 <link rel="stylesheet" href="../css/shooting.css">
 </head>
 
@@ -10,8 +10,8 @@
 
 <div id="gameWrapper">
     <div class="shooting-header">
-        <a href="./index.html" class="back-menu-btn" aria-label="Back to game menu">← Back to Menu</a>
-        <h1>Target Shooting 🎯</h1>
+        <a href="./index.html" class="back-menu-btn" aria-label="กลับไปเมนูเกม">← กลับเมนูเกม</a>
+        <h1>ยิงเป้า 🎯</h1>
 
         <div style="flex-grow: 1;"></div>
 
@@ -25,7 +25,7 @@
                 <span id="timerDisplay" class="value">02:22</span>
             </div>
             <div class="row">
-                <span class="label">High Score</span>
+                <span class="label">คะแนนสูงสุด</span>
                 <span id="highScoreDisplay" class="value">0</span>
             </div>
             <div class="row">
@@ -40,7 +40,7 @@
 
         <div id="startScreen" class="screen">
             <div class="screen-card">
-                <h2>Target Shooting</h2>
+                <h2>เกมยิงเป้า</h2>
                 <button onclick="showTutorial()">เริ่มเกม</button>
             </div>
         </div>
@@ -57,8 +57,8 @@
 
         <div id="gameOverScreen" class="screen" style="display:none;">
             <div class="screen-card">
-                <h2>Game Over</h2>
-                <h3>Score: <span id="finalScore"></span></h3>
+                <h2>เกมจบแล้ว</h2>
+                <h3>คะแนน: <span id="finalScore"></span></h3>
 
                 <h3>ประวัติการเล่น</h3>
                 <ul id="historyList"></ul>
@@ -69,11 +69,11 @@
 
         <div id="resultOverlay" class="result-overlay" aria-hidden="true">
             <div class="result-card">
-                <div id="resultTitle" class="result-title">Reward unlocked!</div>
-                <div id="resultScore" class="result-score">Score: 0</div>
-                <button id="prizeBtn" class="prize-btn" type="button" aria-label="Collect reward">
-                    <img src="../assets/cake-reward/milk.png" alt="Reward">
-                    <span id="prizeBtnLabel">Collect Reward</span>
+                <div id="resultTitle" class="result-title">ปลดล็อกรางวัลแล้ว!</div>
+                <div id="resultScore" class="result-score">คะแนน: 0</div>
+                <button id="prizeBtn" class="prize-btn" type="button" aria-label="เก็บรางวัล">
+                    <img src="../assets/cake-reward/milk.png" alt="รางวัล">
+                    <span id="prizeBtnLabel">เก็บรางวัล</span>
                 </button>
             </div>
         </div>

@@ -653,7 +653,7 @@ function updateGameStatus() {
         statusElement.classList.add('win');
         statusElement.classList.remove('loss');
         lastScore = computeScore(game.elapsedSeconds);
-        resultScore.textContent = `Score: ${lastScore}`;
+        resultScore.textContent = `คะแนน: ${lastScore}`;
         localStorage.setItem('game_minesweeper_score', String(lastScore));
         const alreadyCollected = localStorage.getItem('game_minesweeper_finish') === 'true';
         if (alreadyCollected) {
