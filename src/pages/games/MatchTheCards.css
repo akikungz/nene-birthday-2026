@@ -1,6 +1,6 @@
 .match-cards-body {
     font-family: 'Arial', sans-serif;
-    background: url('/assets/match-the-cards/background.png') center/cover no-repeat fixed;
+    background: url('../../assets/match-the-cards/background.png') center/cover no-repeat fixed;
     min-height: 100vh;
     min-width: 100vw;
     display: flex;
