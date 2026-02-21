@@ -8,6 +8,18 @@
     box-sizing: border-box;
 }
 
+:root {
+    --ui-text: #fff6e6;
+    --ui-warm: #4a2b0c;
+    --ui-card: linear-gradient(145deg, rgba(255, 250, 240, 0.97), rgba(255, 222, 183, 0.9));
+    --ui-pill: rgba(56, 20, 6, 0.62);
+    --ui-chip: linear-gradient(145deg, #fff5d6, #ffd9a8);
+    --ui-primary: linear-gradient(135deg, #ff9f43, #ff6f00);
+    --ui-secondary: linear-gradient(135deg, #ffd77f, #ffb347);
+    --ui-tertiary: linear-gradient(135deg, #9fd7ff, #6aa2f8);
+    --ui-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+}
+
 body {
     font-family: 'Arial', sans-serif;
     background: url('../assets/match-the-cards/background.png') center/cover no-repeat fixed;
@@ -28,18 +40,18 @@ body {
     gap: 6px;
     padding: 8px 14px;
     border-radius: 999px;
-    font-weight: 700;
+    font-weight: 800;
     text-decoration: none;
     color: #4a2b0c;
     background: rgba(255, 243, 220, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.75);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    box-shadow: 0 8px 16px rgba(20, 8, 2, 0.22);
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .back-menu-fixed:hover {
     transform: translateY(-1px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 20px rgba(20, 8, 2, 0.28);
 }
 
 /* ================================
@@ -58,19 +70,32 @@ body {
 
 .header {
     text-align: center;
-    margin-bottom: 40px;
-    color: white;
+    margin-bottom: 24px;
+    color: var(--ui-text);
 }
 
 .header h1 {
-    font-size: 48px;
-    margin-bottom: 10px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    width: fit-content;
+    margin: 0 auto 10px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: clamp(1.45rem, 3.6vw, 2.35rem);
+    letter-spacing: 0.01em;
+    background: var(--ui-pill);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+    box-shadow: 0 10px 20px rgba(20, 7, 2, 0.32);
 }
 
 .header .subtitle {
-    font-size: 18px;
-    opacity: 0.9;
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: clamp(0.9rem, 1.9vw, 1.06rem);
+    font-weight: 700;
+    color: var(--ui-warm);
+    background: var(--ui-card);
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    box-shadow: 0 8px 18px rgba(20, 7, 2, 0.24);
 }
 
 /* ================================
@@ -98,37 +123,58 @@ body {
    Round Progress (หลอดความคืบหน้าการเล่นรอบ)
    ================================ */
 .round-progress {
-    margin-top: 14px;
-    color: white;
+    margin-top: 16px;
+    color: var(--ui-warm);
     text-align: center;
+    background: var(--ui-card);
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    border-radius: 18px;
+    padding: 12px 14px;
+    box-shadow: 0 12px 24px rgba(36, 16, 5, 0.25);
+    backdrop-filter: blur(4px);
 }
 
 .round-progress .progress-bar {
     height: 12px;
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(56, 20, 6, 0.2);
     border-radius: 12px;
     overflow: hidden;
     max-width: 100%;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+    box-shadow: inset 0 1px 2px rgba(20, 7, 2, 0.28);
 }
 
 .round-progress .progress-fill {
     height: 100%;
     width: 0%;
-    background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+    background: linear-gradient(90deg, #ffbf62 0%, #ff9f43 55%, #ff6f00 100%);
     transition: width 0.4s ease;
 }
 
 .round-progress .progress-text {
     margin-top: 8px;
     font-size: 14px;
-    opacity: 0.95;
+    font-weight: 800;
+    color: #5a2f0d;
 }
 
 /* Animation เมื่อหลอดเต็ม */
 .round-progress .progress-fill.filled {
     animation: fillPulse 0.8s ease-in-out;
-    box-shadow: 0 0 12px rgba(245,87,108,0.9), 0 0 30px rgba(240,147,251,0.45);
+    box-shadow: 0 0 12px rgba(255, 159, 67, 0.9), 0 0 24px rgba(255, 111, 0, 0.5);
+}
+
+.game-result {
+    margin-top: 14px;
+    min-height: 120px;
+    padding: 12px 10px;
+    text-align: center;
+}
+
+.game-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
 }
 
 @keyframes fillPulse {
@@ -258,78 +304,8 @@ body {
     }
 }
 
-/* ================================
-   Overlay (พื้นหลังสำหรับ Popup)
-   ================================ */
-
-.overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    display: none;
-    z-index: 998;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.overlay.active {
-    display: block;
-    opacity: 1;
-}
-
-/* ================================
-   Reward Popup (ป็อปอัพรางวัล)
-   ================================ */
-
-.reward-popup {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.5);
-    background: white;
-    border-radius: 20px;
-    padding: 40px;
-    text-align: center;
-    z-index: 999;
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.3s ease;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-}
-
-.reward-popup.active {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translate(-50%, -50%) scale(1);
-    animation: popupGlow 0.5s ease-in-out;
-}
-
-/* Animation: Glow Effect สำหรับ Popup */
-@keyframes popupGlow {
-    0% {
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    }
-    50% {
-        box-shadow: 0 0 40px rgba(255, 215, 0, 0.6), 0 20px 60px rgba(0, 0, 0, 0.3);
-    }
-    100% {
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    }
-}
-
-/* ================================
-   Popup Content (เนื้อหาใน Popup)
-   ================================ */
-
-.popup-content {
-    position: relative;
-}
-
 .reward-message {
-    margin-bottom: 20px;
+    margin-bottom: 2px;
 }
 
 .reward-icon {
@@ -362,8 +338,9 @@ body {
 }
 
 .reward-message h2 {
-    font-size: 32px;
-    color: #333;
+    font-size: clamp(1.2rem, 2.8vw, 1.65rem);
+    color: #2a1402;
+    font-weight: 800;
     margin-bottom: 10px;
 }
 
@@ -373,133 +350,65 @@ body {
 
 .btn-ok,
 .btn-play-again {
-    padding: 12px 40px;
-    font-size: 18px;
+    padding: 12px 28px;
+    font-size: 1rem;
     border: none;
-    border-radius: 30px;
+    border-radius: 12px;
     cursor: pointer;
-    font-weight: bold;
-    transition: all 0.3s ease;
-    margin-top: 10px;
+    font-weight: 700;
+    transition: transform 0.16s ease, box-shadow 0.16s ease, filter 0.16s ease;
+    margin-top: 6px;
     width: 100%;
     max-width: 300px;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
 }
 
 /* ปุ่ม OK */
 .btn-ok {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: var(--ui-primary);
+    color: #2a1402;
     display: block;
 }
 
 .btn-ok:hover {
-    transform: scale(1.05);
-    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    transform: translateY(-1px);
+    filter: brightness(1.04);
+    box-shadow: 0 12px 24px rgba(255, 159, 67, 0.35);
 }
 
 .btn-ok:active {
-    transform: scale(0.98);
+    transform: translateY(1px);
+}
+
+.btn-ok:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+    filter: none;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.14);
+}
+
+.btn-ok.collected {
+    background: linear-gradient(135deg, #ffe0ac, #ffc978);
+    color: #5f340d;
 }
 
 /* ปุ่ม Play Again (ซ่อนในตอนแรก) */
 .btn-play-again {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    color: white;
+    background: var(--ui-secondary);
+    color: #3b1c07;
     display: none;
-    margin-top: 15px;
+    margin-top: 10px;
 }
 
 .btn-play-again:hover {
-    transform: scale(1.05);
-    box-shadow: 0 10px 25px rgba(245, 87, 108, 0.4);
+    transform: translateY(-1px);
+    filter: brightness(1.04);
+    box-shadow: 0 12px 24px rgba(255, 193, 92, 0.35);
 }
 
 .btn-play-again:active {
-    transform: scale(0.98);
-}
-
-/* ปุ่ม Back to Menu */
-.btn-back-menu {
-    padding: 12px 40px;
-    font-size: 18px;
-    border: none;
-    border-radius: 30px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: all 0.25s ease;
-    margin-top: 8px;
-    width: 100%;
-    max-width: 300px;
-    background: linear-gradient(135deg, #74ebd5 0%, #9face6 100%);
-    color: white;
-    display: block;
-}
-
-.btn-back-menu:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(122, 210, 190, 0.25);
-}
-
-.btn-back-menu:active {
-    transform: translateY(0);
-}
-
-/* ================================
-   Floating Reward (กระเด้งออกมา)
-   ================================ */
-
-.floating-reward {
-    position: fixed;
-    width: 120px;
-    height: 120px;
-    cursor: pointer;
-    opacity: 0;
-    pointer-events: none;
-    z-index: 1100;
-}
-
-.floating-reward img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-}
-
-.floating-reward.show {
-    opacity: 1;
-    pointer-events: auto;
-    animation: bounceOut 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-.floating-reward.clicked {
-    animation: zoomToCenter 0.8s ease-in-out forwards;
-}
-
-/* Animation: Bounce Out (กระเด้งออกมา) */
-@keyframes bounceOut {
-    0% {
-        transform: scale(0) translate(0, 0);
-        opacity: 1;
-    }
-    50% {
-        transform: scale(1.1);
-    }
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-/* Animation: Zoom to Center (ซุมเข้ากลาง) */
-@keyframes zoomToCenter {
-    0% {
-        transform: scale(1);
-        opacity: 1;
-    }
-    100% {
-        transform: scale(0) translate(calc(50vw - 50%), calc(50vh - 50%));
-        opacity: 0;
-    }
+    transform: translateY(1px);
 }
 
 /* ================================
@@ -509,7 +418,7 @@ body {
 /* Tablet */
 @media (max-width: 768px) {
     .header h1 {
-        font-size: 36px;
+        font-size: clamp(1.35rem, 5vw, 2rem);
     }
 
     .cards-grid {
@@ -541,11 +450,6 @@ body {
         font-size: 30px;
     }
 
-    .reward-popup {
-        padding: 30px 20px;
-        width: 90%;
-    }
-
     .reward-icon {
         font-size: 60px;
     }
@@ -556,7 +460,7 @@ body {
 
     .btn-ok,
     .btn-play-again {
-        padding: 10px 30px;
+        padding: 10px 22px;
         font-size: 16px;
     }
 }

@@ -39,9 +39,8 @@ let openedCards = [];
 let matchedCards = [];
 let isChecking = false;       // ตัวแปรตรวจสอบว่ากำลังตรวจสอบคู่ไพ่หรือไม่
 let gameWon = false;          // ตัวแปรระบุว่าชนะเกมหรือไม่
-let roundsCompleted = parseInt(localStorage.getItem('roundsCompleted')) || 0; // จำนวนรอบที่เล่น (เก็บใน localStorage)
-let milestonePending = false; // true ถ้ากำลังรอรางวัลพิเศษจากการเล่นครบ 3 รอบ
-const REWARD_THRESHOLD_SCORE = 22;
+let roundsCompleted = 0; // จำนวนรอบที่เล่น (เก็บใน localStorage)
+const roundsStorageKey = 'game_match_the_cards_rounds_completed';
 const rewardScoreStorageKey = 'game_match_the_cards_score';
 const rewardFinishStorageKey = 'game_match_the_cards_finish';
 const BGM_MATCH_THE_CARDS = '../assets/audio/BGM/bgm_match_the_cards.mp3';
@@ -51,8 +50,48 @@ const SFX_COMBINED_INGREDIENTS = '../assets/audio/SFX/sfx_combined_ingredients.m
 const SFX_WIN_THE_GAME = '../assets/audio/SFX/sfx_win_the_game.mp3';
 let lastRoundScore = 0;
 let lastRewardEligible = false;
-// URL สำหรับกลับเมนู (แก้ค่าตามโครงสร้างโปรเจกต์ของคุณ)
-const BACK_TO_MENU_URL = './index.html';
+
+/**
+ * Read persisted round count for this minigame.
+ * @returns {number}
+ */
+function getRoundsCompleted() {
+    const stored = Number.parseInt(localStorage.getItem(roundsStorageKey) || '0', 10);
+    if (Number.isNaN(stored) || stored < 0) {
+        return 0;
+    }
+
+    return stored;
+}
+
+/**
+ * Persist round count for this minigame.
+ * @param {number} rounds
+ * @returns {void}
+ */
+function setRoundsCompleted(rounds) {
+    const safeRounds = Math.max(0, Math.floor(rounds));
+    roundsCompleted = safeRounds;
+    localStorage.setItem(roundsStorageKey, String(safeRounds));
+}
+
+/**
+ * Read reward collected flag from localStorage.
+ * @returns {boolean}
+ */
+function isRewardCollected() {
+    return localStorage.getItem(rewardFinishStorageKey) === 'true';
+}
+
+/**
+ * Persist reward collected flag.
+ * @returns {void}
+ */
+function setRewardCollected() {
+    localStorage.setItem(rewardFinishStorageKey, 'true');
+}
+
+roundsCompleted = getRoundsCompleted();
 
 if (window.GameAudio) {
     window.GameAudio.initBgm(BGM_MATCH_THE_CARDS, { volume: 0.45 });
@@ -83,8 +122,8 @@ function initGame() {
     // สร้าง UI ของไพ่
     renderCards();
 
-    // ซ่อน Reward Popup ถ้ายังเปิดอยู่
-    hideRewardPopup();
+    // รีเซ็ตผลลัพธ์รอบก่อนหน้า
+    resetRoundResultUI();
 
     lastRewardEligible = false;
 
@@ -271,17 +310,22 @@ function handleMatchedCards(card1, card2) {
  */
 function handleRoundCompletion() {
     // เพิ่มจำนวนรอบ
-    roundsCompleted = (parseInt(localStorage.getItem('roundsCompleted')) || 0) + 1;
-    localStorage.setItem('roundsCompleted', roundsCompleted);
+    setRoundsCompleted(getRoundsCompleted() + 1);
 
     // อัปเดต UI ของหลอด
     updateProgressUI();
 
     lastRoundScore = matchedCards.length * 2;
     localStorage.setItem(rewardScoreStorageKey, String(lastRoundScore));
-    lastRewardEligible = lastRoundScore > REWARD_THRESHOLD_SCORE || gameWon;
+    lastRewardEligible = roundsCompleted >= 3;
 
-    // ถ้าถึง 3 รอบ ให้เล่นอนิเมชันหลอดเต็ม แล้วแสดง floating reward (มอบรางวัลพิเศษ)
+    const rewardMessage = document.getElementById('rewardMessage');
+    const btnPlayAgain = document.getElementById('btnPlayAgain');
+
+    // แสดงปุ่มเล่นใหม่ในหน้าเกมหลัก
+    if (btnPlayAgain) btnPlayAgain.style.display = 'block';
+
+    // ถ้าถึง 3 รอบ ให้เล่นอนิเมชันหลอดเต็ม และแสดงรางวัลพิเศษในหน้าเกมหลัก
     if (roundsCompleted >= 3) {
         window.GameAudio?.playSfx(SFX_WIN_THE_GAME, { volume: 0.85 });
         const fill = document.getElementById('progressFill');
@@ -290,33 +334,31 @@ function handleRoundCompletion() {
             fill.classList.add('filled');
         }
 
-        // กำหนดข้อความรางวัลพิเศษไว้ล่วงหน้า และตั้งสถานะ milestone
-        const rewardMessage = document.getElementById('rewardMessage');
         if (rewardMessage) {
             rewardMessage.innerHTML = `
                 <div class="reward-icon"><img src="../assets/cake-reward/flaver.png" alt="Reward"></div>
-                <h2>ยินดีด้วย! เล่นครบ 3 รอบ ได้รางวัลพิเศษ!</h2>
+                <h2 style="color: #ffffff;">ยินดีด้วย! เล่นครบ 3 รอบ ได้รางวัลพิเศษ!</h2>
             `;
+            rewardMessage.style.display = '';
         }
-        milestonePending = true;
 
-        // รอให้อินิเมชันเล่นก่อนแสดง floating reward
+        // ครบรอบแล้ว รีเซ็ตรอบสะสมสำหรับรางวัลรอบถัดไป
+        setRoundsCompleted(0);
+        updateProgressUI();
+
+        // เอา class อนิเมชันออกหลังเล่นจบ
         setTimeout(() => {
-            showFloatingReward();
-        }, 700);
+            if (fill) fill.classList.remove('filled');
+        }, 900);
     } else {
-        // ปกติ: ซ่อนข้อความรางวัล และแสดงเฉพาะปุ่ม Play Again ในป็อปอัพ
-        const rewardMessage = document.getElementById('rewardMessage');
+        // ปกติ: แสดงข้อความจบรอบ และให้เล่นใหม่จากหน้าเกมหลัก
         if (rewardMessage) {
-            rewardMessage.style.display = 'none';
-            rewardMessage.innerHTML = '';
+            rewardMessage.innerHTML = '<h2 style="color: #ffffff;">จบรอบแล้ว! กด Play Again เพื่อเล่นรอบถัดไป</h2>';
+            rewardMessage.style.display = '';
         }
-
-        // แสดง popup และปุ่ม Play Again ให้กดได้เลย
-        showRewardPopup();
-        const btnPlayAgain = document.getElementById('btnPlayAgain');
-        if (btnPlayAgain) btnPlayAgain.style.display = 'block';
     }
+
+    updateRewardClaimButton();
 }
 
 /**
@@ -326,26 +368,11 @@ function handleRoundCompletion() {
 function updateProgressUI() {
     const fill = document.getElementById('progressFill');
     const text = document.getElementById('progressText');
-    const current = parseInt(localStorage.getItem('roundsCompleted')) || 0;
+    const current = getRoundsCompleted();
     const percent = Math.min(100, (current / 3) * 100);
 
     if (fill) fill.style.width = percent + '%';
     if (text) text.textContent = `เล่น ${current}/3 รอบ มีรางวัลให้นะ`;
-}
-
-/**
- * Show milestone reward content in popup.
- * @returns {void}
- */
-function showMilestoneReward() {
-    const rewardMessage = document.getElementById('rewardMessage');
-    if (rewardMessage) {
-        rewardMessage.innerHTML = `
-            <div class="reward-icon"><img src="../assets/cake-reward/flaver.png" alt="Reward"></div>
-            <h2>ยินดีด้วย! เล่นครบ 3 รอบ ได้รางวัลพิเศษ!</h2>
-        `;
-    }
-    showRewardPopup();
 }
 
 /* ================================
@@ -368,89 +395,29 @@ function unflipCards(card1, card2) {
     isChecking = false;
 }
 
-/* ================================
-   ฟังก์ชันแสดง Floating Reward (Show Floating Reward)
-   ================================ */
-
 /**
- * Show floating reward icon at a random viewport position.
+ * Reset result/actions area in the main UI.
  * @returns {void}
  */
-function showFloatingReward() {
-    const floatingReward = document.getElementById('floatingReward');
+function resetRoundResultUI() {
+    const rewardMessage = document.getElementById('rewardMessage');
+    const btnPlayAgain = document.getElementById('btnPlayAgain');
+    const btnCollectReward = document.getElementById('btnCollectReward');
 
-    // สุ่มตำแหน่ง
-    const randomX = Math.random() * (window.innerWidth - 120);
-    const randomY = Math.random() * (window.innerHeight - 120);
+    if (rewardMessage) {
+        rewardMessage.style.display = 'none';
+        rewardMessage.innerHTML = '';
+    }
 
-    floatingReward.style.left = randomX + 'px';
-    floatingReward.style.top = randomY + 'px';
+    if (btnPlayAgain) {
+        btnPlayAgain.style.display = 'none';
+    }
 
-    // แสดง reward
-    floatingReward.classList.add('show');
-
-    // เพิ่ม event listener สำหรับการคลิก
-    floatingReward.onclick = handleRewardClick;
-}
-
-/**
- * Handle click on floating reward and open reward popup.
- * @returns {void}
- */
-function handleRewardClick() {
-    const floatingReward = document.getElementById('floatingReward');
-
-    // เพิ่ม animation ซุมเข้ากลาง
-    floatingReward.classList.add('clicked');
-
-    // รอให้ animation จบแล้วแสดง popup
-    setTimeout(() => {
-        floatingReward.classList.remove('show', 'clicked');
-        floatingReward.style.left = '0';
-        floatingReward.style.top = '0';
-        floatingReward.onclick = null;
-        // ตั้งข้อความรางวัลให้เป็นข้อความสั้นหลังการคลิกไอคอน
-        const rewardMessage = document.getElementById('rewardMessage');
-        if (rewardMessage) {
-            rewardMessage.innerHTML = `
-                <div class="reward-icon"><img src="../assets/cake-reward/flaver.png" alt="Reward"></div>
-                <h2>ยินดีด้วย! คุณได้รางวัล</h2>
-            `;
-            rewardMessage.style.display = '';
-        }
-
-        showRewardPopup();
-    }, 800);
-}
-
-/* ================================
-   ฟังก์ชันแสดง Reward Popup (Show Reward Popup)
-   ================================ */
-
-/**
- * Display reward popup and apply milestone reset if needed.
- * @returns {void}
- */
-function showRewardPopup() {
-    const overlay = document.getElementById('overlay');
-    const rewardPopup = document.getElementById('rewardPopup');
-
-    // แสดง overlay และ popup
-    overlay.classList.add('active');
-    rewardPopup.classList.add('active');
-    updateRewardClaimButton();
-
-    // ถ้ารางวัลนี้มาจาก milestone (เล่นครบ 3 รอบ) ให้รีเซ็ตตัวนับหลังจากแสดง popup
-    if (milestonePending) {
-        roundsCompleted = 0;
-        localStorage.setItem('roundsCompleted', roundsCompleted);
-        updateProgressUI();
-
-        // เอา class อนิเมชันออก
-        const fill = document.getElementById('progressFill');
-        if (fill) fill.classList.remove('filled');
-
-        milestonePending = false;
+    if (btnCollectReward) {
+        btnCollectReward.style.display = 'none';
+        btnCollectReward.disabled = true;
+        btnCollectReward.classList.remove('collected');
+        btnCollectReward.textContent = 'Collect Reward';
     }
 }
 
@@ -465,50 +432,20 @@ function updateRewardClaimButton() {
     if (!lastRewardEligible) {
         btnCollectReward.style.display = 'none';
         btnCollectReward.disabled = true;
+        btnCollectReward.classList.remove('collected');
         return;
     }
 
     btnCollectReward.style.display = 'block';
-    const alreadyCollected = localStorage.getItem(rewardFinishStorageKey) === 'true';
+    const alreadyCollected = isRewardCollected();
     if (alreadyCollected) {
+        btnCollectReward.classList.add('collected');
         btnCollectReward.textContent = 'Reward already collected';
         btnCollectReward.disabled = true;
     } else {
+        btnCollectReward.classList.remove('collected');
         btnCollectReward.textContent = 'Collect Reward';
         btnCollectReward.disabled = false;
-    }
-}
-
-/* ================================
-   ฟังก์ชันซ่อน Reward Popup (Hide Reward Popup)
-   ================================ */
-
-/**
- * Hide reward popup and reset transient UI state.
- * @returns {void}
- */
-function hideRewardPopup() {
-    const overlay = document.getElementById('overlay');
-    const rewardPopup = document.getElementById('rewardPopup');
-    const btnPlayAgain = document.getElementById('btnPlayAgain');
-    const btnCollectReward = document.getElementById('btnCollectReward');
-    const floatingReward = document.getElementById('floatingReward');
-
-    // ซ่อน
-    overlay.classList.remove('active');
-    rewardPopup.classList.remove('active');
-
-    // รีเซ็ต floating reward
-    floatingReward.classList.remove('show', 'clicked');
-    floatingReward.style.left = '0';
-    floatingReward.style.top = '0';
-    floatingReward.onclick = null;
-
-    // ซ่อนปุ่ม Play Again
-    btnPlayAgain.style.display = 'none';
-
-    if (btnCollectReward) {
-        btnCollectReward.style.display = 'none';
     }
 }
 
@@ -521,8 +458,8 @@ function hideRewardPopup() {
  * @returns {void}
  */
 function playAgain() {
-    // ซ่อน Reward Popup
-    hideRewardPopup();
+    // รีเซ็ตผลลัพธ์ในหน้าเกมหลัก
+    resetRoundResultUI();
 
     // เริ่มเกมใหม่
     setTimeout(() => {
@@ -539,30 +476,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnCollectReward) {
         btnCollectReward.addEventListener('click', () => {
             if (!lastRewardEligible) return;
-            const alreadyCollected = localStorage.getItem(rewardFinishStorageKey) === 'true';
+            const alreadyCollected = isRewardCollected();
             if (alreadyCollected) return;
 
-            localStorage.setItem(rewardFinishStorageKey, 'true');
+            setRewardCollected();
             window.GameAudio?.playSfx(SFX_COMBINED_INGREDIENTS, { volume: 0.85 });
-            updateRewardClaimButton();
+            btnCollectReward.classList.add('collected');
+            btnCollectReward.textContent = 'Reward claimed';
+            btnCollectReward.disabled = true;
         });
     }
 
     // ปุ่ม Play Again - เมื่อกดให้เล่นใหม่
     const btnPlayAgain = document.getElementById('btnPlayAgain');
     if (btnPlayAgain) btnPlayAgain.addEventListener('click', playAgain);
-
-    // ปุ่ม Back to Menu - เมื่อกดให้กลับไปยังเมนูหลัก
-    const btnBackToMenu = document.getElementById('btnBackToMenu');
-    if (btnBackToMenu) btnBackToMenu.addEventListener('click', () => {
-        // ถ้ามี URL ตั้งไว้ ให้ไปหน้าเมนู
-        if (BACK_TO_MENU_URL) {
-            window.GameAudio?.playSfx(SFX_NEXT_PAGE, { volume: 0.9 });
-            setTimeout(() => {
-                window.location.href = BACK_TO_MENU_URL;
-            }, 120);
-        }
-    });
 
     const backMenuLink = document.querySelector('.back-menu-fixed');
     if (backMenuLink) {
@@ -596,8 +523,8 @@ document.addEventListener('DOMContentLoaded', () => {
    2. ผู้เล่นคลิกไพ่ -> handleCardClick()
    3. ถ้าเปิดครบ 2 ใบ -> checkMatch()
    4. ถ้าตรงกัน -> handleMatchedCards() -> ตรวจหาผู้ชนะ
-   5. ถ้าจับคู่ครบทั้งหมด -> showRewardPopup()
-   6. ผู้เล่นกด OK -> ซ่อนข้อความ แสดงปุ่ม Play Again
-   7. ผู้เล่นกด Play Again -> hideRewardPopup() -> initGame()
+    5. ถ้าจับคู่ครบทั้งหมด -> handleRoundCompletion()
+    6. แสดงข้อความผลลัพธ์ + ปุ่ม Play Again บนหน้าเกมหลัก
+    7. ผู้เล่นกด Play Again -> resetRoundResultUI() -> initGame()
    
    ================================ */

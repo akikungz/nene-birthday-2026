@@ -27,31 +27,15 @@
                 </div>
                 <div class="progress-text" id="progressText">เล่น 0/3 รอบ มีรางวัลให้นะ</div>
             </div>
-        </main>
 
-        <!-- Overlay สำหรับแสดง Reward Popup -->
-        <div class="overlay" id="overlay"></div>
-
-        <!-- Floating Reward (กระเด้งออกมา) -->
-        <div class="floating-reward" id="floatingReward">
-            <img src="../assets/cake-reward/flaver.png" alt="Reward">
-        </div>
-
-        <!-- Reward Popup -->
-        <div class="reward-popup" id="rewardPopup">
-            <div class="popup-content">
-                <!-- แสดงข้อความรางวัล -->
-                <div class="reward-message" id="rewardMessage">
-                    <div class="reward-icon"><img src="../assets/cake-reward/flaver.png" alt="Reward"></div>
-                    <h2>You got a Reward!</h2>
+            <div class="game-result" id="gameResult" aria-live="polite">
+                <div class="reward-message" id="rewardMessage"></div>
+                <div class="game-actions">
+                    <button class="btn-play-again" id="btnPlayAgain">Play Again</button>
+                    <button class="btn-ok" id="btnCollectReward">Collect Reward</button>
                 </div>
-
-                <button class="btn-ok" id="btnCollectReward">Collect Reward</button>
-                <!-- ปุ่ม Play Again และ Back to Menu -->
-                <button class="btn-play-again" id="btnPlayAgain">Play Again</button>
-                <button class="btn-back-menu" id="btnBackToMenu">Back to Menu</button>
             </div>
-        </div>
+        </main>
     </div>
 
     <script src="../js/audio-manager.js"></script>
