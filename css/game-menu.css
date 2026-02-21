@@ -148,3 +148,123 @@ body {
     transform: scale(1.05); 
     filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5)); 
 }
+
+/* --- Reward --- */
+.reward {
+    position: absolute;
+    /* Centered horizontally and vertically */
+    left: 50%;
+    top: 35%;
+    transform: translateX(-50%) translateY(-50%);
+    z-index: 10;
+    display: grid;
+    /* 2x2 grid */
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 12px;
+    padding: 16px;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 1em;
+    overflow: hidden;
+    transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.reward:hover {
+    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.7));
+    transform: translateX(-50%) translateY(-50%) scale(1.05);
+}
+
+.reward.merge-ready {
+    cursor: pointer;
+}
+
+.reward.merge-ready:focus-visible {
+    outline: 2px solid #ffd683;
+    outline-offset: 4px;
+}
+
+.reward-item {
+    display: inline-block;
+    transition: transform 0.55s ease, opacity 0.55s ease, filter 0.3s ease;
+}
+
+.locked {
+    filter: grayscale(100%) brightness(0%);
+}
+
+.reward-cake {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: clamp(120px, 19vw, 240px);
+    height: auto;
+    transform: translate(-50%, -50%) scale(0.86);
+    opacity: 0;
+    pointer-events: none;
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.4));
+}
+
+.reward.is-merging .reward-item:nth-child(1) {
+    transform: translate(52%, 52%) scale(0.66);
+    opacity: 0.2;
+}
+
+.reward.is-merging .reward-item:nth-child(2) {
+    transform: translate(-52%, 52%) scale(0.66);
+    opacity: 0.2;
+}
+
+.reward.is-merging .reward-item:nth-child(3) {
+    transform: translate(52%, -52%) scale(0.66);
+    opacity: 0.2;
+}
+
+.reward.is-merging .reward-item:nth-child(4) {
+    transform: translate(-52%, -52%) scale(0.66);
+    opacity: 0.2;
+}
+
+.reward.is-merging .reward-cake {
+    animation: cakeFadeIn 0.85s ease forwards 0.28s;
+}
+
+.reward.is-merged .reward-item {
+    opacity: 0;
+    transform: scale(0.55);
+    pointer-events: none;
+}
+
+.reward.is-merged .reward-cake {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.reward.merge-locked {
+    animation: rewardLockedShake 0.35s ease;
+}
+
+@keyframes cakeFadeIn {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.78);
+    }
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+@keyframes rewardLockedShake {
+    0% { transform: translateX(-50%) translateY(-50%) scale(1); }
+    20% { transform: translateX(calc(-50% - 6px)) translateY(-50%) scale(1); }
+    40% { transform: translateX(calc(-50% + 6px)) translateY(-50%) scale(1); }
+    60% { transform: translateX(calc(-50% - 4px)) translateY(-50%) scale(1); }
+    80% { transform: translateX(calc(-50% + 4px)) translateY(-50%) scale(1); }
+    100% { transform: translateX(-50%) translateY(-50%) scale(1); }
+}
+
+.reward-icon {
+    /* Responsive sizing */
+    width: clamp(40px, 8vw, 96px);
+    height: clamp(40px, 8vw, 96px);
+}
