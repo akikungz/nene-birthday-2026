@@ -1,0 +1,386 @@
+.target-shooting-body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    background: radial-gradient(circle at top, #351a0a, #1a0b06 65%);
+    overflow: hidden;
+    color: #1d130c;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+}
+
+.target-shooting-body #gameWrapper {
+    position: relative;
+    width: min(96vw, calc((100vh - 40px) * 16 / 9));
+    aspect-ratio: 16 / 9;
+    max-height: calc(100vh - 40px);
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    border-radius: 24px;
+    overflow: hidden;
+    background: radial-gradient(circle at top right, rgba(255, 185, 95, 0.16), transparent 34%),
+        linear-gradient(165deg, rgba(73, 31, 10, 0.95), rgba(30, 13, 6, 0.96));
+    border: 1px solid rgba(255, 220, 170, 0.26);
+    box-shadow: 0 24px 50px rgba(6, 3, 1, 0.5), inset 0 1px 0 rgba(255, 231, 194, 0.22);
+}
+
+.target-shooting-body .shooting-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    z-index: 5;
+}
+
+.target-shooting-body .shooting-header h1 {
+    margin: 0;
+    font-size: clamp(1.25rem, 2.6vw, 1.9rem);
+    color: #fff6e6;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: rgba(56, 20, 6, 0.6);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
+.target-shooting-body .back-menu-btn {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgba(255, 243, 220, 0.95);
+    color: #4a2b0c;
+    font-weight: 800;
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    box-shadow: 0 8px 16px rgba(20, 8, 2, 0.22);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    z-index: 6;
+    margin-top: 8px;
+}
+
+.target-shooting-body .back-menu-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(20, 8, 2, 0.28);
+}
+
+.target-shooting-body #gameArea {
+    position: absolute;
+    inset: 0;
+    background-image: url("/assets/shooting/background.png");
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
+    touch-action: manipulation;
+}
+
+.target-shooting-body #gameArea::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(16, 8, 2, 0.15), rgba(16, 8, 2, 0.3));
+}
+
+.target-shooting-body .shooting-cursor {
+    position: absolute;
+    width: clamp(72px, 9vw, 108px);
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    pointer-events: none;
+    user-select: none;
+    opacity: 0;
+    z-index: 9;
+    transform: translate(-26%, -22%) rotate(18deg) scale(1);
+    transform-origin: 70% 26%;
+    transition: opacity 0.12s ease, transform 0.08s ease;
+    filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.32));
+}
+
+.target-shooting-body .shooting-cursor.show {
+    opacity: 1;
+}
+
+.target-shooting-body .shooting-cursor.swing {
+    transform: translate(-16%, -8%) rotate(-18deg) scale(0.94);
+}
+
+.target-shooting-body .target {
+    position: absolute;
+    width: clamp(90px, 10.5vw, 170px);
+    height: clamp(90px, 10.5vw, 170px);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    user-select: none;
+    z-index: 2;
+    touch-action: manipulation;
+    will-change: transform;
+}
+
+.target-shooting-body #playZone {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.target-shooting-body #scoreHUD {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    background: linear-gradient(145deg, rgba(255, 250, 240, 0.95), rgba(255, 222, 183, 0.88));
+    color: #4a2b0c;
+    padding: 12px 16px;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    box-shadow: 0 12px 24px rgba(36, 16, 5, 0.25);
+    backdrop-filter: blur(6px);
+    min-width: min(360px, 85vw);
+}
+
+.target-shooting-body #scoreHUD .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700;
+}
+
+.target-shooting-body #scoreHUD .label {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.7rem;
+    opacity: 0.75;
+}
+
+.target-shooting-body #scoreHUD .value {
+    font-weight: 800;
+    font-size: 1.1rem;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: linear-gradient(145deg, #fff5d6, #ffd9a8);
+    color: #6b3d0c;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85), 0 4px 10px rgba(36, 16, 5, 0.2);
+    min-width: 52px;
+    text-align: center;
+}
+
+.target-shooting-body #livesDisplay {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.target-shooting-body .lives-value {
+    min-width: 112px;
+}
+
+.target-shooting-body .heartIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(18px, 2vw, 24px);
+    line-height: 1;
+}
+
+.target-shooting-body .screen {
+    position: absolute;
+    inset: 0;
+    background: rgba(8, 12, 20, 0.65);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #2a1402;
+    z-index: 10;
+    padding: 20px;
+}
+
+.target-shooting-body .screen-card {
+    width: min(620px, 92vw);
+    max-height: 80%;
+    overflow: auto;
+    background: rgba(255, 250, 240, 0.95);
+    border-radius: 20px;
+    padding: 28px 34px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+}
+
+.target-shooting-body .screen h1 {
+    margin: 0;
+    font-size: clamp(1.5rem, 3.2vw, 2.2rem);
+    color: #2a1402;
+}
+
+.target-shooting-body .screen h2,
+.target-shooting-body .screen h3 {
+    margin: 0;
+    color: #5a2f0d;
+}
+
+.target-shooting-body #tutorialScreen p {
+    font-size: clamp(1rem, 2.2vw, 1.15rem);
+    margin: 2px 0;
+    color: #6a3a10;
+    font-weight: 700;
+}
+
+.target-shooting-body button {
+    align-self: center;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 28px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+    color: #2a1402;
+    background: linear-gradient(135deg, #ff9f43, #ff6f00);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.target-shooting-body button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(255, 159, 67, 0.35);
+}
+
+.target-shooting-body #historyList {
+    max-height: 210px;
+    overflow-y: auto;
+    font-size: 1rem;
+    text-align: left;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.target-shooting-body #historyList li {
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: linear-gradient(145deg, #fff5d6, #ffd9a8);
+    color: #5e340d;
+    font-weight: 700;
+}
+
+.target-shooting-body .result-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(8, 10, 22, 0.66);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 16;
+}
+
+.target-shooting-body .result-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.target-shooting-body .result-card {
+    width: min(420px, 92vw);
+    border-radius: 18px;
+    padding: 24px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+    background: linear-gradient(145deg, rgba(255, 250, 240, 0.98), rgba(255, 222, 183, 0.92));
+    color: #2a1402;
+    box-shadow: 0 20px 36px rgba(0, 0, 0, 0.35);
+}
+
+.target-shooting-body .result-title {
+    font-size: clamp(1.2rem, 2.8vw, 1.7rem);
+    font-weight: 800;
+}
+
+.target-shooting-body .result-score {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: #5a2f0d;
+}
+
+.target-shooting-body .prize-btn {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: #3b1c07;
+    font-weight: 700;
+    padding: 0;
+    margin-top: 2px;
+}
+
+.target-shooting-body .prize-btn img {
+    width: clamp(100px, 28vw, 170px);
+    height: auto;
+    filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.24));
+    transition: transform 0.14s ease;
+}
+
+.target-shooting-body .prize-btn:hover img {
+    transform: scale(1.04);
+}
+
+.target-shooting-body .prize-btn.collected img {
+    transform: scale(0.98);
+    opacity: 0.85;
+}
+
+.target-shooting-body .prize-btn:disabled {
+    cursor: default;
+}
+
+@media (max-width: 768px) {
+    .target-shooting-body {
+        padding: 10px;
+    }
+
+    .target-shooting-body #gameWrapper {
+        width: min(98vw, calc((100vh - 20px) * 16 / 9));
+        max-height: calc(100vh - 20px);
+        padding: 10px;
+        gap: 8px;
+        border-radius: 14px;
+    }
+
+    .target-shooting-body #scoreHUD {
+        min-width: 100%;
+        justify-content: center;
+    }
+
+    .target-shooting-body .screen-card {
+        padding: 22px 18px;
+    }
+}
+
+@media (hover: none),
+(pointer: coarse) {
+    .target-shooting-body .shooting-cursor {
+        display: none;
+    }
+}
