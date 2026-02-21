@@ -15,8 +15,8 @@ interface DifficultyConfig {
 
 const difficulties: Record<DifficultyKey, DifficultyConfig> = {
     easy: { rows: 8, cols: 8, mines: 10, multiplier: 1 },
-    medium: { rows: 10, cols: 10, mines: 40, multiplier: 1.6 },
-    hard: { rows: 12, cols: 12, mines: 99, multiplier: 2.6 }
+    medium: { rows: 10, cols: 10, mines: 20, multiplier: 1.6 },
+    hard: { rows: 12, cols: 12, mines: 30, multiplier: 2.6 }
 };
 
 const INSTANT_WIN_UNLOCK_LOSSES = 5;
@@ -254,21 +254,24 @@ const Minesweeper: React.FC = () => {
     };
 
     const forceWin = () => {
-        if (gameOver) return;
+        // Reset game state first so forceWin works even from a game-over screen
+        const { rows, cols } = difficulties[difficulty];
         let currentBoard = board;
-        if (firstClick) {
+
+        if (gameOver || firstClick) {
             setFirstClick(false);
             currentBoard = placeMines(0, 0);
             setBoard(currentBoard);
         }
+
         setGameOver(true);
         setGameLost(false);
         stopTimer();
 
-        const newRevealed = [...revealed.map(row => [...row])];
-        const newFlagged = [...flagged.map(row => [...row])];
-        for (let r = 0; r < config.rows; r++) {
-            for (let c = 0; c < config.cols; c++) {
+        const newRevealed = Array(rows).fill(null).map(() => Array(cols).fill(false));
+        const newFlagged = Array(rows).fill(null).map(() => Array(cols).fill(false));
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
                 if (currentBoard[r][c] === 'M') {
                     newFlagged[r][c] = true;
                 } else {
@@ -278,7 +281,19 @@ const Minesweeper: React.FC = () => {
         }
         setRevealed(newRevealed);
         setFlagged(newFlagged);
-        handleWin();
+        setElapsedSeconds(0);
+        setShowResultOverlay(false);
+        setLossRecorded(false);
+
+        const score = computeScore();
+        setLastScore(score);
+        localStorage.setItem('game_minesweeper_score', String(score));
+
+        audioManager.playSfx('/assets/audio/SFX/minesweeper/sfx_open_chest.mp3', { volume: 0.9 });
+
+        setTimeout(() => {
+            setShowResultOverlay(true);
+        }, 500);
     };
 
     // Cell rendering
