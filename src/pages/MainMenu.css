@@ -129,7 +129,6 @@
     }
 }
 
-.credit-modal,
 .settings-modal {
     position: absolute;
     inset: 0;
@@ -142,10 +141,31 @@
     transition: opacity 0.18s ease;
 }
 
+.credit-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    overflow-y: auto;
+    padding: 20px 0;
+    background: rgba(6, 4, 2, 0.75);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s ease;
+}
+
 .credit-modal.show,
 .settings-modal.show {
     opacity: 1;
     pointer-events: auto;
+}
+
+.credit-card {
+    margin: auto;
+    flex-shrink: 0;
 }
 
 .settings-card,
@@ -191,4 +211,95 @@
     margin: 8px 0;
     font-size: clamp(14px, 2vw, 20px);
     font-weight: 700;
+}
+
+
+
+.credit-list {
+    text-align: left;
+    margin: 0 0 8px;
+}
+
+.credit-section {
+    margin-bottom: 16px;
+}
+
+.credit-section-title {
+    margin: 0 0 6px;
+    font-size: clamp(16px, 2.2vw, 22px);
+    font-weight: 900;
+    color: #8b4513;
+    border-bottom: 2px solid #d4a76a;
+    padding-bottom: 4px;
+}
+
+.credit-names {
+    margin: 4px 0;
+    font-size: clamp(13px, 1.6vw, 17px);
+    font-weight: 600;
+    color: #3e2209;
+}
+
+.credit-role {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 3px 0;
+    font-size: clamp(13px, 1.6vw, 17px);
+}
+
+.credit-role-label {
+    font-weight: 800;
+    color: #5a3010;
+    white-space: nowrap;
+    min-width: 120px;
+}
+
+.credit-role-names {
+    font-weight: 600;
+    color: #3e2209;
+    text-align: right;
+}
+
+@media (max-width: 768px) {
+    .credit-card {
+        width: 96%;
+        padding: 16px 14px;
+        border-radius: 10px;
+    }
+
+    .credit-card h2 {
+        font-size: 22px;
+        margin-bottom: 10px;
+    }
+
+    .credit-section-title {
+        font-size: 15px;
+    }
+
+    .credit-role {
+        flex-direction: column;
+        gap: 2px;
+        padding: 4px 0;
+        font-size: 14px;
+    }
+
+    .credit-role-label {
+        min-width: unset;
+        font-size: 13px;
+    }
+
+    .credit-role-names {
+        text-align: left;
+        font-size: 14px;
+    }
+
+    .credit-names {
+        font-size: 14px;
+    }
+
+    .credit-close-btn {
+        max-width: 100%;
+    }
 }
