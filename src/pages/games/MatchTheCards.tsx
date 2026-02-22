@@ -236,6 +236,7 @@ const MatchTheCards: React.FC = () => {
                                     </button>
                                 )}
                                 <button className="btn-play-again" onClick={initGame}>เล่นอีกครั้ง</button>
+                                <button className="btn-play-again" onClick={() => navigate('/game')}>กลับไปเมนูเกม</button>
                             </div>
                         </div>
                     )}

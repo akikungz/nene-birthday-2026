@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { audioManager } from '../utils/AudioManager';
 import './GameMenu.css';
@@ -19,8 +19,44 @@ const GameMenu: React.FC = () => {
 
     const [cakeMerged, setCakeMerged] = useState(false);
     const [isMerging, setIsMerging] = useState(false);
+    const [isBouncing, setIsBouncing] = useState(false);
     const [mergeLocked, setMergeLocked] = useState(false);
     const [showCG, setShowCG] = useState(false);
+    const [showVideo, setShowVideo] = useState(false);
+    const [videoFading, setVideoFading] = useState(false);
+    const [videoVolume, setVideoVolume] = useState(1);
+    const [isPlaying, setIsPlaying] = useState(true);
+    const [hasWatchedCredits, setHasWatchedCredits] = useState(false);
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const hasPausedRef = useRef(false);
+
+    const handleTimeUpdate = useCallback(() => {
+        const video = videoRef.current;
+        if (!video) return;
+
+        if (video.currentTime >= 66 && !hasPausedRef.current) {
+            hasPausedRef.current = true;
+            video.pause();
+            setTimeout(() => {
+                if (videoRef.current) {
+                    videoRef.current.play().catch(console.error);
+                }
+            }, 2000);
+        }
+    }, []);
+
+    const handleVideoEnd = useCallback(() => {
+        if (videoFading) return;
+        setVideoFading(true);
+        setShowCG(true);
+        localStorage.setItem('game_menu_watched_credits', 'true');
+        setHasWatchedCredits(true);
+        setTimeout(() => {
+            setShowVideo(false);
+            setVideoFading(false);
+            hasPausedRef.current = false;
+        }, 800);
+    }, [videoFading]);
 
     useEffect(() => {
         audioManager.initBgm('/assets/audio/BGM/bgm_game_menu.mp3', { volume: 0.45 });
@@ -42,9 +78,13 @@ const GameMenu: React.FC = () => {
 
             const merged = localStorage.getItem(REWARD_CAKE_MERGED_STORAGE_KEY) === 'true';
             setCakeMerged(merged);
+
+            const watched = localStorage.getItem('game_menu_watched_credits') === 'true';
+            setHasWatchedCredits(watched);
         };
 
         checkRewards();
+        setVideoVolume(audioManager.getVolumes().bgm);
         window.addEventListener('storage', checkRewards);
         window.addEventListener('pageshow', checkRewards);
 
@@ -65,12 +105,12 @@ const GameMenu: React.FC = () => {
         setIsRedirecting(true);
         setLoading(true);
 
-        const sfx = audioManager.playSfx('/assets/audio/SFX/sfx_choose_game.mp3', { volume: 0.9 });
+        const sfx = audioManager.playSfx('/assets/audio/SFX/sfx_choose_game.mp3', { volume: path != "/" ? 0.9 : 0 });
 
         const doNavigate = () => navigate(path);
 
         if (!sfx) {
-            setTimeout(doNavigate, 150);
+            setTimeout(doNavigate, path != "/" ? 150 : 0);
             return;
         }
 
@@ -83,7 +123,7 @@ const GameMenu: React.FC = () => {
 
         sfx.addEventListener('ended', finish, { once: true });
         sfx.addEventListener('error', finish, { once: true });
-        setTimeout(finish, 2000); // 2s fallback
+        setTimeout(finish, path != "/" ? 2000 : 0); // 2s fallback
     };
 
     const allUnlocked = rewardsUnlocked.cards && rewardsUnlocked.minesweeper && rewardsUnlocked.shooting && rewardsUnlocked.mole;
@@ -96,10 +136,14 @@ const GameMenu: React.FC = () => {
             return;
         }
 
-        if (isMerging) return;
+        if (isMerging || isBouncing) return;
 
         if (cakeMerged) {
-            setShowCG(true);
+            setIsBouncing(true);
+            setTimeout(() => {
+                setIsBouncing(false);
+                setShowVideo(true);
+            }, 600); // Wait for bounce animation to finish
             return;
         }
 
@@ -108,10 +152,26 @@ const GameMenu: React.FC = () => {
             setIsMerging(false);
             setCakeMerged(true);
             localStorage.setItem(REWARD_CAKE_MERGED_STORAGE_KEY, 'true');
-            setTimeout(() => {
-                setShowCG(true);
-            }, 600);
         }, 900);
+    };
+
+    const handleVideoVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = Number(e.target.value);
+        setVideoVolume(val);
+        if (videoRef.current) {
+            videoRef.current.volume = val;
+        }
+    };
+
+    const togglePlayPause = () => {
+        if (videoRef.current) {
+            if (isPlaying) {
+                videoRef.current.pause();
+            } else {
+                videoRef.current.play().catch(console.error);
+            }
+            setIsPlaying(!isPlaying);
+        }
     };
 
     const getRewardContainerClass = () => {
@@ -120,6 +180,7 @@ const GameMenu: React.FC = () => {
         if (allUnlocked && !cakeMerged && !isMerging) classes.push('merge-ready');
         if (isMerging) classes.push('is-merging');
         if (cakeMerged) classes.push('is-merged');
+        if (isBouncing) classes.push('is-bouncing');
         return classes.join(' ');
     };
 
@@ -193,6 +254,59 @@ const GameMenu: React.FC = () => {
                     <p className="loading-text">กำลังโหลดเกม...</p>
                 </div>
             </div>
+
+            {showVideo && (
+                <div className={`video-overlay show ${videoFading ? 'fading' : ''}`} onClick={handleVideoEnd}>
+                    <video
+                        ref={videoRef}
+                        className="end-credits-video"
+                        src="/assets/end_credits.mov"
+                        autoPlay
+                        playsInline
+                        // controls
+                        onTimeUpdate={handleTimeUpdate}
+                        onEnded={handleVideoEnd}
+                        onClick={(e) => e.stopPropagation()}
+                        onLoadedMetadata={(e) => {
+                            (e.target as HTMLVideoElement).volume = videoVolume;
+                        }}
+                    />
+                    <div className="custom-video-controls" onClick={(e) => e.stopPropagation()}>
+                        <button
+                            className="video-play-btn"
+                            onClick={(e) => { e.stopPropagation(); togglePlayPause(); }}
+                            aria-label={isPlaying ? "หยุดชั่วคราว" : "เล่น"}
+                        >
+                            {isPlaying ? '⏸' : '▶'}
+                        </button>
+                        <div className="video-volume-control">
+                            <span className="volume-icon">{videoVolume === 0 ? '🔇' : '🔊'}</span>
+                            <input
+                                type="range"
+                                min="0"
+                                max="1"
+                                step="0.01"
+                                value={videoVolume}
+                                onChange={handleVideoVolumeChange}
+                                className="video-volume-slider"
+                                aria-label="ระดับเสียงวิดีโอ"
+                            />
+                        </div>
+                        <button
+                            className={`video-skip-btn ${!hasWatchedCredits ? 'disabled' : ''}`}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (hasWatchedCredits) handleVideoEnd();
+                            }}
+                            disabled={!hasWatchedCredits}
+                            style={{ cursor: !hasWatchedCredits ? 'not-allowed' : 'pointer' }}
+                            title={!hasWatchedCredits ? "คุณต้องดูให้จบก่อนในครั้งแรก" : "ข้าม"}
+                        >
+                            ข้าม ▸
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <div className={`cg-popup-overlay ${showCG ? 'show' : ''}`} onClick={() => setShowCG(false)} aria-hidden={!showCG}>
                 <div className="cg-popup-content" onClick={(e) => e.stopPropagation()}>

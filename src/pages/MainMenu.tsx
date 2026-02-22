@@ -19,6 +19,7 @@ const MainMenu: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [showSettings, setShowSettings] = useState(false);
     const [showCredit, setShowCredit] = useState(false);
+    const [creditTab, setCreditTab] = useState<'video' | 'text'>('video');
     const [cakeUnlocked, setCakeUnlocked] = useState(false);
 
     const [bgmVolume, setBgmVolume] = useState(100);
@@ -136,23 +137,54 @@ const MainMenu: React.FC = () => {
             <div className={`credit-modal ${showCredit ? 'show' : ''}`} aria-hidden={!showCredit}>
                 <div className="credit-card" role="dialog" aria-modal="true" aria-labelledby="creditTitle">
                     <h2 id="creditTitle">เครดิต</h2>
-                    <div className="credit-list">
-                        {creditSections.map((section) => (
-                            <div key={section.title} className="credit-section">
-                                <h3 className="credit-section-title">{section.title}</h3>
-                                {Array.isArray(section.data) ? (
-                                    <p className="credit-names">{section.data.join(', ')}</p>
-                                ) : (
-                                    Object.entries(section.data).map(([roleKey, names]) => (
-                                        <div key={roleKey} className="credit-role">
-                                            <span className="credit-role-label">{key_map[roleKey as keyof typeof key_map] || roleKey}</span>
-                                            <span className="credit-role-names">{(names as string[]).join(', ')}</span>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-                        ))}
+
+                    <div className="credit-tabs">
+                        <button
+                            className={`credit-tab-btn ${creditTab === 'video' ? 'active' : ''}`}
+                            onClick={() => setCreditTab('video')}
+                        >
+                            วิดีโอเครดิต
+                        </button>
+                        <button
+                            className={`credit-tab-btn ${creditTab === 'text' ? 'active' : ''}`}
+                            onClick={() => setCreditTab('text')}
+                        >
+                            รายชื่อเครดิต
+                        </button>
                     </div>
+
+                    <div className="credit-content">
+                        {creditTab === 'video' && (
+                            <video
+                                className="credit-video"
+                                src="/assets/end_credits.mov"
+                                controls
+                                playsInline
+                                preload="none"
+                            />
+                        )}
+
+                        {creditTab === 'text' && (
+                            <div className="credit-list">
+                                {creditSections.map((section) => (
+                                    <div key={section.title} className="credit-section">
+                                        <h3 className="credit-section-title">{section.title}</h3>
+                                        {Array.isArray(section.data) ? (
+                                            <p className="credit-names">{section.data.join(', ')}</p>
+                                        ) : (
+                                            Object.entries(section.data).map(([roleKey, names]) => (
+                                                <div key={roleKey} className="credit-role">
+                                                    <span className="credit-role-label">{key_map[roleKey as keyof typeof key_map] || roleKey}</span>
+                                                    <span className="credit-role-names">{(names as string[]).join(', ')}</span>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
                     <button type="button" className="vanilla-btn credit-close-btn" onClick={() => setShowCredit(false)}>ปิด</button>
                 </div>
             </div>
