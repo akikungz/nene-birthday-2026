@@ -186,6 +186,15 @@
     font-size: clamp(24px, 4vw, 36px);
 }
 
+.credit-video {
+    width: 100%;
+    max-height: 40vh;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    background: #000;
+    aspect-ratio: 16 / 9;
+}
+
 .settings-row {
     margin: 12px 0 6px;
     display: flex;
@@ -214,6 +223,38 @@
 }
 
 
+
+.credit-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    border-bottom: 2px solid rgba(139, 69, 19, 0.2);
+    padding-bottom: 8px;
+}
+
+.credit-tab-btn {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.3);
+    border: 2px solid transparent;
+    color: #5a3010;
+    font-size: clamp(14px, 1.8vw, 18px);
+    font-weight: 800;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.credit-tab-btn:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.credit-tab-btn.active {
+    background: #5a3010;
+    color: #fff;
+    border-color: #3e2209;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
 
 .credit-list {
     text-align: left;

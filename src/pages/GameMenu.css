@@ -211,12 +211,40 @@
 @keyframes cakeFadeIn {
     0% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(0.78);
+        transform: translate(-50%, -50%) scale(0.5);
     }
-
+    60% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.15); /* Overshoot for bounce */
+    }
+    80% {
+        transform: translate(-50%, -50%) scale(0.95);
+    }
     100% {
         opacity: 1;
         transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+.reward.is-bouncing .reward-cake {
+    animation: cakeBounce 0.6s cubic-bezier(0.28, 0.84, 0.42, 1);
+}
+
+@keyframes cakeBounce {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+    30% {
+        transform: translate(-50%, -50%) scale(1.15) translateY(-10px);
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(0.95) translateY(5px);
+    }
+    75% {
+        transform: translate(-50%, -50%) scale(1.05) translateY(-3px);
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1) translateY(0);
     }
 }
 
@@ -368,4 +396,94 @@
 
 .cg-close-btn:hover {
     opacity: 1;
+}
+
+.video-overlay {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 1001;
+    cursor: pointer;
+    opacity: 1;
+    transition: opacity 0.8s ease;
+}
+
+.video-overlay.fading {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.end-credits-video {
+    max-width: 100vw;
+    max-height: 100vh;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    cursor: default;
+}
+
+.custom-video-controls {
+    position: absolute;
+    bottom: 32px;
+    right: 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    z-index: 1002;
+}
+
+.video-volume-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 8px 14px;
+    border-radius: 8px;
+    transition: opacity 0.2s, background 0.2s;
+}
+
+.video-volume-control:hover {
+    background: rgba(0, 0, 0, 0.65);
+}
+
+.volume-icon {
+    font-size: 18px;
+    color: white;
+    user-select: none;
+}
+
+.video-volume-slider {
+    width: 80px;
+    accent-color: #ffd683;
+    cursor: pointer;
+}
+
+.video-play-btn,
+.video-skip-btn {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    font-size: clamp(14px, 1.4vw, 18px);
+    font-weight: 700;
+    padding: 8px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.2s, background 0.2s;
+}
+
+.video-play-btn {
+    padding: 8px 16px;
+    font-size: clamp(16px, 1.6vw, 20px);
+}
+
+.video-play-btn:hover,
+.video-skip-btn:not(.disabled):hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.25);
 }

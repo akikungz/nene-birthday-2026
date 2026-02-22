@@ -3,7 +3,9 @@ export const head_project = {
     support_director: ["Kens", "Mobie", "TelTriNo", "akikungz"],
 }
 
-export const research = ["GR'BR", "Kens", "Mobie", "Nong partoo", "PochiSan", "TelTriNo", "YUKIHIME"]
+export const research = {
+    Research: ["GR'BR", "Kens", "Mobie", "Nong partoo", "PochiSan", "TelTriNo", "YUKIHIME"],
+}
 
 export const art = {
     full_cg_sketch: ["Demu", "Doggy", "NOGEAAR"],

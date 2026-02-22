@@ -26,13 +26,22 @@ export const triggerBackgroundPreload = (onProgress?: (progress: number) => void
             }
         };
 
+        const imageExts = new Set(['.png', '.jpg', '.jpeg', '.svg', '.webp', '.gif']);
+        const fetchExts = new Set(['.mp3', '.mp4', '.mov', '.webm', '.ogg', '.wav']);
+
+        const getExt = (path: string) => {
+            const i = path.lastIndexOf('.');
+            return i !== -1 ? path.slice(i).toLowerCase() : '';
+        };
+
         const startPreload = () => {
             assetPaths.forEach((src: string) => {
-                if (src.endsWith('.mp3') || src.endsWith('.mp4')) {
+                const ext = getExt(src);
+                if (fetchExts.has(ext)) {
                     fetch(src, { cache: 'force-cache' })
                         .then(handleLoad)
                         .catch(handleLoad);
-                } else if (src.endsWith('.png') || src.endsWith('.jpg') || src.endsWith('.svg')) {
+                } else if (imageExts.has(ext)) {
                     const img = new Image();
                     const cleanup = () => {
                         img.onload = null;
@@ -43,7 +52,9 @@ export const triggerBackgroundPreload = (onProgress?: (progress: number) => void
                     img.onerror = cleanup;
                     img.src = src;
                 } else {
-                    handleLoad();
+                    fetch(src, { cache: 'force-cache' })
+                        .then(handleLoad)
+                        .catch(handleLoad);
                 }
             });
         };
