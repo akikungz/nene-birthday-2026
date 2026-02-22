@@ -317,6 +317,42 @@
     color: #ffc3b0;
 }
 
+.minesweeper-body .tutorial-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(8, 12, 20, 0.7);
+    backdrop-filter: blur(4px);
+}
+
+.minesweeper-body .tutorial-card {
+    width: min(520px, 88vw);
+    background: rgba(255, 250, 240, 0.95);
+    border-radius: 20px;
+    padding: 28px 34px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+}
+
+.minesweeper-body .tutorial-card h2 {
+    margin: 0 0 4px;
+    font-size: clamp(1.4rem, 3vw, 1.8rem);
+    color: #5a2f0d;
+}
+
+.minesweeper-body .tutorial-card p {
+    margin: 2px 0;
+    font-size: clamp(0.95rem, 2vw, 1.1rem);
+    color: #6a3a10;
+    font-weight: 700;
+}
+
 .minesweeper-body .result-overlay {
     position: absolute;
     inset: 0;

@@ -51,6 +51,7 @@ const WhackAMole: React.FC = () => {
 
     const [showResultOverlay, setShowResultOverlay] = useState(false);
     const [rewardCollected, setRewardCollected] = useState(false);
+    const [showTutorial, setShowTutorial] = useState(false);
 
     // Hammer state
     const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
@@ -374,7 +375,10 @@ const WhackAMole: React.FC = () => {
                             audioManager.playSfx('/assets/audio/SFX/sfx_next_page.mp3', { volume: 0.9 });
                             setTimeout(() => navigate('/game'), 120);
                         }}>← กลับเมนูเกม</a>
-                        <button className="btn" id="startBtn" type="button" onClick={startGame} disabled={gameState === 'loading' || gameState === 'playing'}>
+                        <button className="btn" id="startBtn" type="button" onClick={() => {
+                            if (gameState === 'loading' || gameState === 'playing') return;
+                            setShowTutorial(true);
+                        }} disabled={gameState === 'loading' || gameState === 'playing'}>
                             เริ่มเกม
                         </button>
                     </div>
@@ -441,6 +445,19 @@ const WhackAMole: React.FC = () => {
                         </button>
                     </div>
                 </div>
+
+                {showTutorial && (
+                    <div className="tutorial-overlay">
+                        <div className="tutorial-card">
+                            <h2>วิธีเล่น</h2>
+                            <p>คลิกหรือกดปุ่ม 1-6 เพื่อตีโทเท็ม</p>
+                            <p>ตีผักโทเท็มได้คะแนน</p>
+                            <p>อย่าตีตัวละครอันตราย เสียชีวิต!</p>
+                            <p>ทำให้ได้มากกว่า 22 คะแนน เพื่อรับรางวัล</p>
+                            <button className="btn" onClick={() => { setShowTutorial(false); startGame(); }}>เริ่ม!</button>
+                        </div>
+                    </div>
+                )}
             </main>
         </div>
     );
