@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { audioManager } from '../../utils/AudioManager';
 import './MatchTheCards.css';
@@ -38,6 +38,8 @@ const MatchTheCards: React.FC = () => {
     const [rewardEligible, setRewardEligible] = useState(false);
     const [rewardCollected, setRewardCollected] = useState(false);
     const [isFilling, setIsFilling] = useState(false);
+    const [showTutorial, setShowTutorial] = useState(true);
+    const roundCompletedRef = useRef(false);
 
     useEffect(() => {
         audioManager.initBgm('/assets/audio/BGM/bgm_match_the_cards.mp3', { volume: 0.45 });
@@ -49,6 +51,14 @@ const MatchTheCards: React.FC = () => {
 
         initGame();
     }, []);
+
+    // Detect win condition via useEffect to avoid StrictMode double-call
+    useEffect(() => {
+        if (cards.length > 0 && cards.every(c => c.isMatched) && !roundCompletedRef.current) {
+            roundCompletedRef.current = true;
+            handleRoundCompletion();
+        }
+    }, [cards]);
 
     const initGame = () => {
         const cardsPair = [...CARDS_DATA, ...CARDS_DATA];
@@ -67,9 +77,11 @@ const MatchTheCards: React.FC = () => {
         setGameWon(false);
         setRewardEligible(false);
         setIsFilling(false);
+        roundCompletedRef.current = false;
     };
 
     const handleCardClick = (index: number) => {
+        if (showTutorial) return;
         if (isChecking) return;
         if (cards[index].isFlipped || cards[index].isMatched) return;
         if (openedIndices.length >= 2) return;
@@ -104,15 +116,6 @@ const MatchTheCards: React.FC = () => {
 
                 setOpenedIndices([]);
                 setIsChecking(false);
-
-                // Check win condition
-                setCards(latestCards => {
-                    if (latestCards.every(c => c.isMatched)) {
-                        handleRoundCompletion();
-                        return latestCards; // Actually we handle win in state
-                    }
-                    return latestCards;
-                });
 
             }, 300); // slight delay for visual
         } else {
@@ -176,6 +179,19 @@ const MatchTheCards: React.FC = () => {
                     <p className="subtitle">จับคู่อาหารให้ตรงกันทั้งหมด</p>
                 </header>
 
+                {showTutorial && (
+                    <div className="tutorial-overlay">
+                        <div className="tutorial-card">
+                            <h2>วิธีเล่น</h2>
+                            <p>คลิกการ์ดเพื่อเปิด เปิดทีละ 2 ใบ</p>
+                            <p>จับคู่ถูก การ์ดจะหายไป</p>
+                            <p>จับคู่ผิด การ์ดจะคว่ำกลับ</p>
+                            <p>เล่นให้ครบ 3 รอบ เพื่อรับรางวัล</p>
+                            <button className="btn-ok" onClick={() => setShowTutorial(false)}>เริ่มเกม</button>
+                        </div>
+                    </div>
+                )}
+
                 <main className="game-area">
                     <div className="cards-grid">
                         {cards.map((card, index) => (
@@ -204,28 +220,22 @@ const MatchTheCards: React.FC = () => {
                     </div>
 
                     {gameWon && (
-                        <div className="game-result" aria-live="polite">
-                            <div className="reward-message">
-                                {rewardEligible ? (
-                                    <>
-                                        <div className="reward-icon"><img src="/assets/cake-reward/flaver.png" alt="Reward" /></div>
-                                        <h2 style={{ color: '#ffffff' }}>ยินดีด้วย! เล่นครบ 3 รอบ ได้รางวัลพิเศษ!</h2>
-                                    </>
-                                ) : (
-                                    <h2 style={{ color: '#ffffff' }}>จบรอบแล้ว! กด Play Again เพื่อเล่นรอบถัดไป</h2>
-                                )}
-                            </div>
-                            <div className="game-actions">
-                                <button className="btn-play-again" onClick={initGame} style={{ display: 'block' }}>เล่นอีกครั้ง</button>
+                        <div className="result-overlay show">
+                            <div className="result-card" onClick={e => e.stopPropagation()}>
+                                <div className="result-title">{rewardEligible ? 'ยินดีด้วย! เล่นครบ 3 รอบ' : 'จบรอบแล้ว!'}</div>
+                                <div className="result-score">รอบที่เล่น: {roundsCompleted}/3</div>
                                 {rewardEligible && (
                                     <button
-                                        className={`btn-ok ${rewardCollected ? 'collected' : ''}`}
+                                        className={`prize-btn ${rewardCollected ? 'collected' : ''}`}
+                                        type="button"
                                         onClick={handleCollectReward}
                                         disabled={rewardCollected}
                                     >
-                                        {rewardCollected ? 'เก็บรางวัลไปแล้ว' : 'เก็บรางวัล'}
+                                        <img src="/assets/cake-reward/flaver.png" alt="รางวัล" />
+                                        <span>{rewardCollected ? 'เก็บรางวัลไปแล้ว' : 'เก็บรางวัล'}</span>
                                     </button>
                                 )}
+                                <button className="btn-play-again" onClick={initGame}>เล่นอีกครั้ง</button>
                             </div>
                         </div>
                     )}

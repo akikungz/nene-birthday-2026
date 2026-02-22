@@ -1,13 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { audioManager } from '../utils/AudioManager';
+import { head_project, research, art, programmer, video_editor, project_manager, key_map } from '../assets/credit';
+
 import './MainMenu.css';
+
+const creditSections = [
+    { title: 'Head Project', data: head_project },
+    { title: 'Research', data: research },
+    { title: 'Art', data: art },
+    { title: 'Programmer', data: programmer },
+    { title: 'Video Editor', data: video_editor },
+    { title: 'Project Manager', data: project_manager },
+];
 
 const MainMenu: React.FC = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [showSettings, setShowSettings] = useState(false);
     const [showCredit, setShowCredit] = useState(false);
+    const [cakeUnlocked, setCakeUnlocked] = useState(false);
 
     const [bgmVolume, setBgmVolume] = useState(100);
     const [sfxVolume, setSfxVolume] = useState(100);
@@ -24,6 +36,8 @@ const MainMenu: React.FC = () => {
         const vols = audioManager.getVolumes();
         setBgmVolume(Math.round(vols.bgm * 100));
         setSfxVolume(Math.round(vols.sfx * 100));
+
+        setCakeUnlocked(localStorage.getItem('game_menu_reward_cake_merged') === 'true');
 
         return () => clearTimeout(timer);
     }, []);
@@ -74,7 +88,7 @@ const MainMenu: React.FC = () => {
             <div className="main-menu-actions" aria-label="เมนูหลัก">
                 <button type="button" className="vanilla-btn" onClick={() => { audioManager.playSfx('/assets/audio/SFX/sfx_next_page.mp3'); setShowSettings(true); }}>ตั้งค่า</button>
                 <button type="button" className="vanilla-btn" onClick={handleStartGame}>เริ่มเกม</button>
-                <button type="button" className="vanilla-btn" onClick={() => { audioManager.playSfx('/assets/audio/SFX/sfx_next_page.mp3'); setShowCredit(true); }}>เครดิต</button>
+                <button type="button" className="vanilla-btn" onClick={() => { audioManager.playSfx('/assets/audio/SFX/sfx_next_page.mp3'); setShowCredit(true); }} disabled={!cakeUnlocked}>เครดิต</button>
             </div>
 
             {/* Settings Modal */}
@@ -122,8 +136,23 @@ const MainMenu: React.FC = () => {
             <div className={`credit-modal ${showCredit ? 'show' : ''}`} aria-hidden={!showCredit}>
                 <div className="credit-card" role="dialog" aria-modal="true" aria-labelledby="creditTitle">
                     <h2 id="creditTitle">เครดิต</h2>
-                    <p>🎉 คอลเลกชันเกมวันเกิด Mikotomi Maneneko</p>
-                    <p>สร้างด้วยความรักเพื่อฉลองวันเกิดของเนเนะ</p>
+                    <div className="credit-list">
+                        {creditSections.map((section) => (
+                            <div key={section.title} className="credit-section">
+                                <h3 className="credit-section-title">{section.title}</h3>
+                                {Array.isArray(section.data) ? (
+                                    <p className="credit-names">{section.data.join(', ')}</p>
+                                ) : (
+                                    Object.entries(section.data).map(([roleKey, names]) => (
+                                        <div key={roleKey} className="credit-role">
+                                            <span className="credit-role-label">{key_map[roleKey as keyof typeof key_map] || roleKey}</span>
+                                            <span className="credit-role-names">{(names as string[]).join(', ')}</span>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        ))}
+                    </div>
                     <button type="button" className="vanilla-btn credit-close-btn" onClick={() => setShowCredit(false)}>ปิด</button>
                 </div>
             </div>

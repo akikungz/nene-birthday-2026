@@ -15,8 +15,8 @@ interface DifficultyConfig {
 
 const difficulties: Record<DifficultyKey, DifficultyConfig> = {
     easy: { rows: 8, cols: 8, mines: 10, multiplier: 1 },
-    medium: { rows: 10, cols: 10, mines: 40, multiplier: 1.6 },
-    hard: { rows: 12, cols: 12, mines: 99, multiplier: 2.6 }
+    medium: { rows: 10, cols: 10, mines: 20, multiplier: 1.6 },
+    hard: { rows: 12, cols: 12, mines: 30, multiplier: 2.6 }
 };
 
 const INSTANT_WIN_UNLOCK_LOSSES = 5;
@@ -33,6 +33,11 @@ const Minesweeper: React.FC = () => {
     const [gameOver, setGameOver] = useState(false);
     const [gameLost, setGameLost] = useState(false);
     const [firstClick, setFirstClick] = useState(true);
+
+    // Refs for touch-hold flag detection
+    const holdTimerRef = useRef<number | null>(null);
+    const touchMovedRef = useRef(false);
+    const didFlagRef = useRef(false);
     const [elapsedSeconds, setElapsedSeconds] = useState(0);
     const [flaggedCount, setFlaggedCount] = useState(0);
 
@@ -41,6 +46,7 @@ const Minesweeper: React.FC = () => {
     const [showResultOverlay, setShowResultOverlay] = useState(false);
     const [lastScore, setLastScore] = useState(0);
     const [rewardCollected, setRewardCollected] = useState(false);
+    const [showTutorial, setShowTutorial] = useState(true);
 
     const timerRef = useRef<number | null>(null);
     const startTimeRef = useRef<number | null>(null);
@@ -254,21 +260,24 @@ const Minesweeper: React.FC = () => {
     };
 
     const forceWin = () => {
-        if (gameOver) return;
+        // Reset game state first so forceWin works even from a game-over screen
+        const { rows, cols } = difficulties[difficulty];
         let currentBoard = board;
-        if (firstClick) {
+
+        if (gameOver || firstClick) {
             setFirstClick(false);
             currentBoard = placeMines(0, 0);
             setBoard(currentBoard);
         }
+
         setGameOver(true);
         setGameLost(false);
         stopTimer();
 
-        const newRevealed = [...revealed.map(row => [...row])];
-        const newFlagged = [...flagged.map(row => [...row])];
-        for (let r = 0; r < config.rows; r++) {
-            for (let c = 0; c < config.cols; c++) {
+        const newRevealed = Array(rows).fill(null).map(() => Array(cols).fill(false));
+        const newFlagged = Array(rows).fill(null).map(() => Array(cols).fill(false));
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
                 if (currentBoard[r][c] === 'M') {
                     newFlagged[r][c] = true;
                 } else {
@@ -278,7 +287,19 @@ const Minesweeper: React.FC = () => {
         }
         setRevealed(newRevealed);
         setFlagged(newFlagged);
-        handleWin();
+        setElapsedSeconds(0);
+        setShowResultOverlay(false);
+        setLossRecorded(false);
+
+        const score = computeScore();
+        setLastScore(score);
+        localStorage.setItem('game_minesweeper_score', String(score));
+
+        audioManager.playSfx('/assets/audio/SFX/minesweeper/sfx_open_chest.mp3', { volume: 0.9 });
+
+        setTimeout(() => {
+            setShowResultOverlay(true);
+        }, 500);
     };
 
     // Cell rendering
@@ -302,29 +323,38 @@ const Minesweeper: React.FC = () => {
             className += ' flagged';
         }
 
-        // Handlers for touch hold (simplified logic for React)
-        let holdTimer: number | null = null;
-        let moved = false;
-
         return (
             <div
                 key={`${r}-${c}`}
                 className={className}
                 onClick={() => revealCell(r, c)}
                 onContextMenu={(e) => toggleFlag(r, c, e)}
-                onTouchStart={(e) => {
-                    if (e.touches.length === 1) {
-                        moved = false;
-                        holdTimer = window.setTimeout(() => toggleFlag(r, c), 420);
+                onTouchStart={() => {
+                    touchMovedRef.current = false;
+                    didFlagRef.current = false;
+                    holdTimerRef.current = window.setTimeout(() => {
+                        didFlagRef.current = true;
+                        toggleFlag(r, c);
+                    }, 420);
+                }}
+                onTouchMove={() => {
+                    touchMovedRef.current = true;
+                    if (holdTimerRef.current) {
+                        clearTimeout(holdTimerRef.current);
+                        holdTimerRef.current = null;
                     }
                 }}
-                onTouchMove={() => { moved = true; if (holdTimer) clearTimeout(holdTimer); }}
                 onTouchEnd={(e) => {
-                    if (holdTimer) clearTimeout(holdTimer);
-                    if (!moved) {
-                        e.preventDefault();
-                        revealCell(r, c);
+                    if (holdTimerRef.current) {
+                        clearTimeout(holdTimerRef.current);
+                        holdTimerRef.current = null;
                     }
+                    if (didFlagRef.current || touchMovedRef.current) {
+                        e.preventDefault();
+                        return;
+                    }
+                    e.preventDefault();
+                    revealCell(r, c);
                 }}
             >
                 {isRev && val !== 'M' && val !== 0 ? val : ''}
@@ -387,6 +417,7 @@ const Minesweeper: React.FC = () => {
                     <div className="board-area" id="boardArea" ref={boardAreaRef}>
                         <div
                             className="game-board"
+                            onContextMenu={(e) => e.preventDefault()}
                             style={{
                                 gridTemplateColumns: `repeat(${config.cols}, ${boardSize.cellSize}px)`,
                                 gridTemplateRows: `repeat(${config.rows}, ${boardSize.cellSize}px)`,
@@ -403,6 +434,19 @@ const Minesweeper: React.FC = () => {
 
                     {statusText && (
                         <div className={`game-status ${gameLost ? 'loss' : 'win'}`}>{statusText}</div>
+                    )}
+
+                    {showTutorial && (
+                        <div className="tutorial-overlay">
+                            <div className="tutorial-card">
+                                <h2>วิธีเล่น</h2>
+                                <p>คลิกช่องเพื่อเปิด หลีกเลี่ยงกับดัก!</p>
+                                <p>ตัวเลขบอกจำนวนกับดักรอบข้าง</p>
+                                <p>คลิกขวาหรือแตะค้างเพื่อปักธง</p>
+                                <p>เปิดช่องที่ปลอดภัยทั้งหมดเพื่อชนะ</p>
+                                <button className="btn btn-primary" onClick={() => setShowTutorial(false)}>เริ่มเกม</button>
+                            </div>
+                        </div>
                     )}
 
                     <div className={`result-overlay ${showResultOverlay ? 'show' : ''}`} aria-hidden={!showResultOverlay} onClick={() => setShowResultOverlay(false)}>

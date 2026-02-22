@@ -2,11 +2,13 @@
     font-family: 'Arial', sans-serif;
     background: url('../../assets/match-the-cards/background.png') center/cover no-repeat fixed;
     min-height: 100vh;
+    max-height: 100vh;
     min-width: 100vw;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
+    padding: 10px;
+    overflow: hidden;
 }
 
 .back-menu-fixed {
@@ -41,7 +43,7 @@
 
 .match-cards-header {
     text-align: center;
-    margin-bottom: 24px;
+    margin-bottom: 10px;
     color: #fff6e6;
 }
 
@@ -72,7 +74,7 @@
 .game-area {
     background: transparent;
     border-radius: 20px;
-    padding: 15px;
+    padding: 10px;
     box-shadow: none;
 }
 
@@ -83,13 +85,13 @@
 }
 
 .round-progress {
-    margin-top: 16px;
+    margin-top: 10px;
     color: #4a2b0c;
     text-align: center;
     background: linear-gradient(145deg, rgba(255, 250, 240, 0.97), rgba(255, 222, 183, 0.9));
     border: 1px solid rgba(255, 255, 255, 0.72);
     border-radius: 18px;
-    padding: 12px 14px;
+    padding: 8px 14px;
     box-shadow: 0 12px 24px rgba(36, 16, 5, 0.25);
     backdrop-filter: blur(4px);
 }
@@ -122,18 +124,82 @@
     box-shadow: 0 0 12px rgba(255, 159, 67, 0.9), 0 0 24px rgba(255, 111, 0, 0.5);
 }
 
-.game-result {
-    margin-top: 14px;
-    min-height: 120px;
-    padding: 12px 10px;
-    text-align: center;
+.match-cards-body .result-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(8, 12, 20, 0.7);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1200;
 }
 
-.game-actions {
+.match-cards-body .result-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.match-cards-body .result-card {
+    width: min(440px, 92vw);
+    border-radius: 20px;
+    padding: 28px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    text-align: center;
+    background: linear-gradient(145deg, rgba(255, 250, 240, 0.98), rgba(255, 222, 183, 0.92));
+    color: #2a1402;
+    box-shadow: 0 20px 36px rgba(0, 0, 0, 0.35);
+}
+
+.match-cards-body .result-title {
+    font-size: clamp(1.2rem, 2.8vw, 1.6rem);
+    font-weight: 800;
+    color: #2a1402;
+    margin: 0;
+}
+
+.match-cards-body .result-score {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: #5a2f0d;
+}
+
+.match-cards-body .prize-btn {
+    border: none;
+    background: transparent;
+    cursor: pointer;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 8px;
+    color: #3b1c07;
+    font-weight: 700;
+}
+
+.match-cards-body .prize-btn img {
+    width: min(180px, 40vw);
+    height: auto;
+    filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.25));
+    transition: transform 0.2s ease;
+}
+
+.match-cards-body .prize-btn:hover img {
+    transform: scale(1.05);
+}
+
+.match-cards-body .prize-btn.collected img {
+    transform: scale(0.98);
+    filter: grayscale(0.2) brightness(0.9);
+}
+
+.match-cards-body .prize-btn:disabled {
+    cursor: default;
 }
 
 @keyframes fillPulse {
@@ -151,6 +217,43 @@
         transform: scaleX(1);
         filter: brightness(1);
     }
+}
+
+.match-cards-body .tutorial-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1300;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(8, 12, 20, 0.8);
+    backdrop-filter: blur(6px);
+}
+
+.match-cards-body .tutorial-card {
+    width: min(520px, 92vw);
+    background: rgba(255, 250, 240, 0.95);
+    border-radius: 20px;
+    padding: 28px 34px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+}
+
+.match-cards-body .tutorial-card h2 {
+    margin: 0 0 4px;
+    font-size: clamp(1.4rem, 3vw, 1.8rem);
+    color: #5a2f0d;
+}
+
+.match-cards-body .tutorial-card p {
+    margin: 2px 0;
+    font-size: clamp(0.95rem, 2vw, 1.1rem);
+    color: #6a3a10;
+    font-weight: 700;
 }
 
 .card {

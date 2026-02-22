@@ -20,6 +20,7 @@ const GameMenu: React.FC = () => {
     const [cakeMerged, setCakeMerged] = useState(false);
     const [isMerging, setIsMerging] = useState(false);
     const [mergeLocked, setMergeLocked] = useState(false);
+    const [showCG, setShowCG] = useState(false);
 
     useEffect(() => {
         audioManager.initBgm('/assets/audio/BGM/bgm_game_menu.mp3', { volume: 0.45 });
@@ -95,13 +96,21 @@ const GameMenu: React.FC = () => {
             return;
         }
 
-        if (isMerging || cakeMerged) return;
+        if (isMerging) return;
+
+        if (cakeMerged) {
+            setShowCG(true);
+            return;
+        }
 
         setIsMerging(true);
         setTimeout(() => {
             setIsMerging(false);
             setCakeMerged(true);
             localStorage.setItem(REWARD_CAKE_MERGED_STORAGE_KEY, 'true');
+            setTimeout(() => {
+                setShowCG(true);
+            }, 600);
         }, 900);
     };
 
@@ -182,6 +191,13 @@ const GameMenu: React.FC = () => {
                 <div className="loading-card" role="status" aria-live="polite">
                     <span className="loading-spinner" aria-hidden="true"></span>
                     <p className="loading-text">กำลังโหลดเกม...</p>
+                </div>
+            </div>
+
+            <div className={`cg-popup-overlay ${showCG ? 'show' : ''}`} onClick={() => setShowCG(false)} aria-hidden={!showCG}>
+                <div className="cg-popup-content" onClick={(e) => e.stopPropagation()}>
+                    <button className="cg-close-btn" onClick={() => setShowCG(false)} aria-label="Close CG">✕</button>
+                    <img src="/assets/Unlocked_CG.png" alt="Unlocked CG" className="cg-image" />
                 </div>
             </div>
         </>

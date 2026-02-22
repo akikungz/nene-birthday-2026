@@ -357,6 +357,43 @@
     }
 }
 
+.whack-a-mole-body .tutorial-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1300;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(8, 12, 20, 0.7);
+    backdrop-filter: blur(4px);
+}
+
+.whack-a-mole-body .tutorial-card {
+    width: min(520px, 92vw);
+    background: rgba(255, 250, 240, 0.95);
+    border-radius: 20px;
+    padding: 28px 34px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    color: #2a1402;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+}
+
+.whack-a-mole-body .tutorial-card h2 {
+    margin: 0 0 4px;
+    font-size: clamp(1.4rem, 3vw, 1.8rem);
+    color: #5a2f0d;
+}
+
+.whack-a-mole-body .tutorial-card p {
+    margin: 2px 0;
+    font-size: clamp(0.95rem, 2vw, 1.1rem);
+    color: #6a3a10;
+    font-weight: 700;
+}
+
 @media (max-width: 540px) {
     .whack-a-mole-body .game {
         padding: 10px;
