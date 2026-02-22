@@ -19,6 +19,7 @@ const MainMenu: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [showSettings, setShowSettings] = useState(false);
     const [showCredit, setShowCredit] = useState(false);
+    const [cakeUnlocked, setCakeUnlocked] = useState(false);
 
     const [bgmVolume, setBgmVolume] = useState(100);
     const [sfxVolume, setSfxVolume] = useState(100);
@@ -35,6 +36,8 @@ const MainMenu: React.FC = () => {
         const vols = audioManager.getVolumes();
         setBgmVolume(Math.round(vols.bgm * 100));
         setSfxVolume(Math.round(vols.sfx * 100));
+
+        setCakeUnlocked(localStorage.getItem('game_menu_reward_cake_merged') === 'true');
 
         return () => clearTimeout(timer);
     }, []);
@@ -85,7 +88,7 @@ const MainMenu: React.FC = () => {
             <div className="main-menu-actions" aria-label="เมนูหลัก">
                 <button type="button" className="vanilla-btn" onClick={() => { audioManager.playSfx('/assets/audio/SFX/sfx_next_page.mp3'); setShowSettings(true); }}>ตั้งค่า</button>
                 <button type="button" className="vanilla-btn" onClick={handleStartGame}>เริ่มเกม</button>
-                <button type="button" className="vanilla-btn" onClick={() => { audioManager.playSfx('/assets/audio/SFX/sfx_next_page.mp3'); setShowCredit(true); }}>เครดิต</button>
+                <button type="button" className="vanilla-btn" onClick={() => { audioManager.playSfx('/assets/audio/SFX/sfx_next_page.mp3'); setShowCredit(true); }} disabled={!cakeUnlocked}>เครดิต</button>
             </div>
 
             {/* Settings Modal */}
