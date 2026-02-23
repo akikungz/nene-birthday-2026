@@ -129,6 +129,14 @@ const MainMenu: React.FC = () => {
                         aria-label="ระดับเสียงเอฟเฟกต์"
                     />
 
+                    <button type="button" className="vanilla-btn settings-reset-btn" onClick={() => {
+                        if (window.confirm('คุณต้องการรีเซ็ตข้อมูลทั้งหมดหรือ? (รางวัล, คะแนน, การตั้งค่า จะถูกลบทั้งหมด)')) {
+                            localStorage.clear();
+                            audioManager.setBgmVolume(1);
+                            audioManager.setSfxVolume(1);
+                            window.location.reload();
+                        }
+                    }}>รีเซ็ตข้อมูลทั้งหมด</button>
                     <button type="button" className="vanilla-btn settings-close-btn" onClick={() => setShowSettings(false)}>ปิด</button>
                 </div>
             </div>
