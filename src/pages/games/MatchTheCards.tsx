@@ -44,6 +44,7 @@ const MatchTheCards: React.FC = () => {
     const roundCompletedRef = useRef(false);
 
     useEffect(() => {
+        document.title = 'Mikotomi Maneneko Festival - Match The Cards';
         audioManager.initBgm('/assets/audio/BGM/bgm_match_the_cards.mp3', { volume: 0.45 });
 
         const storedRounds = parseInt(localStorage.getItem(ROUNDS_STORAGE_KEY) || '0', 10);

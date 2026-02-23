@@ -26,6 +26,7 @@ const MainMenu: React.FC = () => {
     const [sfxVolume, setSfxVolume] = useState(100);
 
     useEffect(() => {
+        document.title = 'Mikotomi Maneneko Festival - Main Menu';
         // Initial load simulation or actual asset loading
         const timer = setTimeout(() => {
             setLoading(false);

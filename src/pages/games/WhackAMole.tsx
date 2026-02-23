@@ -69,6 +69,7 @@ const WhackAMole: React.FC = () => {
     const activeDifficultyRef = useRef(DIFFICULTY_PRESETS.normal);
 
     useEffect(() => {
+        document.title = 'Mikotomi Maneneko Festival - Whack A Mole';
         audioManager.initBgm('/assets/audio/BGM/bgm_whack_a_mole.mp3', { volume: 0.45 });
 
         setBestScore(Number(localStorage.getItem('whack-a-mole-best') || 0));

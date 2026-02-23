@@ -63,6 +63,7 @@ const TargetShooting: React.FC = () => {
     const zeroStartTimeRef = useRef<number | null>(null);
 
     useEffect(() => {
+        document.title = 'Mikotomi Maneneko Festival - Target Shooting';
         audioManager.initBgm('/assets/audio/BGM/bgm_target_shooting.mp3', { volume: 0.45 });
 
         setHighScore(parseInt(localStorage.getItem('game_ShootingGame_maxScore') || '0', 10));

@@ -80,6 +80,7 @@ const Minesweeper: React.FC = () => {
     }, [difficulty]);
 
     useEffect(() => {
+        document.title = 'Mikotomi Maneneko Festival - Minesweeper';
         audioManager.initBgm('/assets/audio/BGM/bgm_minesweeper.mp3', { volume: 0.45 });
         initGame();
         return () => {

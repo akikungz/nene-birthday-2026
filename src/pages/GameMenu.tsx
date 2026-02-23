@@ -61,6 +61,7 @@ const GameMenu: React.FC = () => {
     }, [videoFading]);
 
     useEffect(() => {
+        document.title = 'Mikotomi Maneneko Festival - Game Menu';
         audioManager.initBgm('/assets/audio/BGM/bgm_game_menu.mp3', { volume: 0.45 });
 
         // Sync reward states
