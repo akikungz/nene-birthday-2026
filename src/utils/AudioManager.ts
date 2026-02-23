@@ -24,6 +24,8 @@ class AudioManager {
     private bgmVolumeSetting: number = 0.5;
     private sfxVolumeSetting: number = 1;
     private activated: boolean = false;
+    private bgmForcePaused: boolean = false;
+    private sfxMuted: boolean = false;
 
     constructor() {
         this.bgmVolumeSetting = this.loadVolumeSetting(STORAGE_BGM_VOLUME_KEY, 1);
@@ -85,7 +87,7 @@ class AudioManager {
     private tryPlayBgm(): void {
         if (!this.bgmAudio || !this.bgmSrc) return;
         this.applyBgmVolume();
-        if (!this.activated) return;
+        if (!this.activated || this.bgmForcePaused) return;
 
         const playPromise = this.bgmAudio.play();
         if (playPromise !== undefined) {
@@ -131,8 +133,28 @@ class AudioManager {
         this.bgmAudio.currentTime = 0;
     }
 
+    public pauseBgm(): void {
+        this.bgmForcePaused = true;
+        if (this.bgmAudio) {
+            this.bgmAudio.pause();
+        }
+    }
+
+    public resumeBgm(): void {
+        this.bgmForcePaused = false;
+        this.tryPlayBgm();
+    }
+
+    public muteSfx(): void {
+        this.sfxMuted = true;
+    }
+
+    public unmuteSfx(): void {
+        this.sfxMuted = false;
+    }
+
     public playSfx(src: string, options: SfxOptions = {}): HTMLAudioElement | null {
-        if (!src) return null;
+        if (!src || this.sfxMuted) return null;
 
         const audio = new Audio(src);
         audio.preload = "auto";

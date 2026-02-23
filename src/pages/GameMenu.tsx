@@ -51,6 +51,8 @@ const GameMenu: React.FC = () => {
         setShowCG(true);
         localStorage.setItem('game_menu_watched_credits', 'true');
         setHasWatchedCredits(true);
+        audioManager.unmuteSfx();
+        audioManager.resumeBgm();
         setTimeout(() => {
             setShowVideo(false);
             setVideoFading(false);
@@ -99,6 +101,14 @@ const GameMenu: React.FC = () => {
             document.removeEventListener('visibilitychange', handleVisibility);
         };
     }, []);
+
+    // Pause BGM & mute SFX while end credits video is playing
+    useEffect(() => {
+        if (showVideo) {
+            audioManager.pauseBgm();
+            audioManager.muteSfx();
+        }
+    }, [showVideo]);
 
     const handleNavigate = (path: string) => {
         if (isRedirecting) return;
