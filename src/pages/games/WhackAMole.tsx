@@ -23,6 +23,7 @@ const HOLE_POSITIONS = [
 const MAX_HEALTH = 5;
 const GAME_DURATION = 142;
 const REWARD_THRESHOLD_SCORE = 22;
+const REWARD_CAN_COLLECTED_KEY = 'game_whack_a_mole_can_collected';
 
 const DIFFICULTY_PRESETS = {
     easy: { label: "ง่าย", moleMinTime: 750, moleMaxTime: 1300, spawnInterval: 900 },
@@ -51,6 +52,7 @@ const WhackAMole: React.FC = () => {
 
     const [showResultOverlay, setShowResultOverlay] = useState(false);
     const [rewardCollected, setRewardCollected] = useState(false);
+    const [canCollect, setCanCollect] = useState(false);
     const [showTutorial, setShowTutorial] = useState(false);
 
     // Hammer state
@@ -70,7 +72,14 @@ const WhackAMole: React.FC = () => {
         audioManager.initBgm('/assets/audio/BGM/bgm_whack_a_mole.mp3', { volume: 0.45 });
 
         setBestScore(Number(localStorage.getItem('whack-a-mole-best') || 0));
-        setRewardCollected(localStorage.getItem('game_whack_a_mole_finish') === 'true');
+
+        const alreadyCollected = localStorage.getItem('game_whack_a_mole_finish') === 'true';
+        setRewardCollected(alreadyCollected);
+
+        // Mark as can-collect if player qualified but didn't collect
+        if (!alreadyCollected && localStorage.getItem(REWARD_CAN_COLLECTED_KEY) === 'true') {
+            setCanCollect(true);
+        }
 
         preloadAssets();
 
@@ -176,6 +185,7 @@ const WhackAMole: React.FC = () => {
 
             if (finalScore > REWARD_THRESHOLD_SCORE || options.passed) {
                 audioManager.playSfx('/assets/audio/SFX/sfx_win_the_game.mp3', { volume: 0.9 });
+                localStorage.setItem(REWARD_CAN_COLLECTED_KEY, 'true');
                 setShowResultOverlay(true);
             } else {
                 setShowResultOverlay(false);
@@ -349,7 +359,9 @@ const WhackAMole: React.FC = () => {
         e.stopPropagation();
         if (rewardCollected) return;
         localStorage.setItem('game_whack_a_mole_finish', 'true');
+        localStorage.removeItem(REWARD_CAN_COLLECTED_KEY);
         setRewardCollected(true);
+        setCanCollect(false);
         audioManager.playSfx('/assets/audio/SFX/sfx_combined_ingredients.mp3', { volume: 0.85 });
     };
 
@@ -381,6 +393,9 @@ const WhackAMole: React.FC = () => {
                         }} disabled={gameState === 'loading' || gameState === 'playing'}>
                             เริ่มเกม
                         </button>
+                        {canCollect && !rewardCollected && (
+                            <button className="btn" type="button" onClick={() => setShowResultOverlay(true)}>🎁 เก็บรางวัล</button>
+                        )}
                     </div>
                     <div className={`status ${statusType}`} id="status">{statusMessage}</div>
                 </div>

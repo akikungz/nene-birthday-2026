@@ -20,6 +20,7 @@ const difficulties: Record<DifficultyKey, DifficultyConfig> = {
 };
 
 const INSTANT_WIN_UNLOCK_LOSSES = 5;
+const REWARD_CAN_COLLECTED_KEY = 'game_minesweeper_can_collected';
 
 const Minesweeper: React.FC = () => {
     const navigate = useNavigate();
@@ -46,6 +47,7 @@ const Minesweeper: React.FC = () => {
     const [showResultOverlay, setShowResultOverlay] = useState(false);
     const [lastScore, setLastScore] = useState(0);
     const [rewardCollected, setRewardCollected] = useState(false);
+    const [canCollect, setCanCollect] = useState(false);
     const [showTutorial, setShowTutorial] = useState(true);
 
     const timerRef = useRef<number | null>(null);
@@ -63,7 +65,14 @@ const Minesweeper: React.FC = () => {
         setFlaggedCount(0);
         setLossRecorded(false);
         setShowResultOverlay(false);
-        setRewardCollected(localStorage.getItem('game_minesweeper_finish') === 'true');
+
+        const alreadyCollected = localStorage.getItem('game_minesweeper_finish') === 'true';
+        setRewardCollected(alreadyCollected);
+
+        // Mark as can-collect if player won but didn't collect
+        if (!alreadyCollected && localStorage.getItem(REWARD_CAN_COLLECTED_KEY) === 'true') {
+            setCanCollect(true);
+        }
 
         if (timerRef.current) clearInterval(timerRef.current);
         timerRef.current = null;
@@ -147,6 +156,8 @@ const Minesweeper: React.FC = () => {
         const score = computeScore();
         setLastScore(score);
         localStorage.setItem('game_minesweeper_score', String(score));
+
+        localStorage.setItem(REWARD_CAN_COLLECTED_KEY, 'true');
 
         // Slight delay to show overlay
         setTimeout(() => {
@@ -255,8 +266,10 @@ const Minesweeper: React.FC = () => {
         e.stopPropagation();
         if (rewardCollected) return;
         localStorage.setItem('game_minesweeper_finish', 'true');
+        localStorage.removeItem(REWARD_CAN_COLLECTED_KEY);
         audioManager.playSfx('/assets/audio/SFX/sfx_combined_ingredients.mp3', { volume: 0.85 });
         setRewardCollected(true);
+        setCanCollect(false);
     };
 
     const forceWin = () => {
@@ -469,6 +482,10 @@ const Minesweeper: React.FC = () => {
 
                 <div className="controls">
                     <button className="btn btn-primary" onClick={initGame}>เริ่มใหม่</button>
+
+                    {canCollect && !rewardCollected && (
+                        <button className="btn btn-primary" onClick={() => setShowResultOverlay(true)}>🎁 เก็บรางวัล</button>
+                    )}
 
                     {lossCount >= INSTANT_WIN_UNLOCK_LOSSES && (
                         <button className="btn btn-secondary" onClick={forceWin}>ยอมยัง?</button>

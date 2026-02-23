@@ -26,6 +26,7 @@ const CARDS_DATA = [
 
 const ROUNDS_STORAGE_KEY = 'game_match_the_cards_rounds_completed';
 const REWARD_FINISH_KEY = 'game_match_the_cards_finish';
+const REWARD_CAN_COLLECTED_KEY = 'game_match_the_cards_can_collected';
 
 const MatchTheCards: React.FC = () => {
     const navigate = useNavigate();
@@ -37,6 +38,7 @@ const MatchTheCards: React.FC = () => {
     const [gameWon, setGameWon] = useState(false);
     const [rewardEligible, setRewardEligible] = useState(false);
     const [rewardCollected, setRewardCollected] = useState(false);
+    const [canCollect, setCanCollect] = useState(false);
     const [isFilling, setIsFilling] = useState(false);
     const [showTutorial, setShowTutorial] = useState(true);
     const roundCompletedRef = useRef(false);
@@ -47,7 +49,13 @@ const MatchTheCards: React.FC = () => {
         const storedRounds = parseInt(localStorage.getItem(ROUNDS_STORAGE_KEY) || '0', 10);
         setRoundsCompleted(isNaN(storedRounds) ? 0 : Math.max(0, storedRounds));
 
-        setRewardCollected(localStorage.getItem(REWARD_FINISH_KEY) === 'true');
+        const alreadyCollected = localStorage.getItem(REWARD_FINISH_KEY) === 'true';
+        setRewardCollected(alreadyCollected);
+
+        // Re-show reward overlay if player won but didn't collect
+        if (!alreadyCollected && localStorage.getItem(REWARD_CAN_COLLECTED_KEY) === 'true') {
+            setCanCollect(true);
+        }
 
         initGame();
     }, []);
@@ -143,6 +151,7 @@ const MatchTheCards: React.FC = () => {
                 audioManager.playSfx('/assets/audio/SFX/sfx_win_the_game.mp3', { volume: 0.85 });
                 setIsFilling(true);
                 setRewardEligible(true);
+                localStorage.setItem(REWARD_CAN_COLLECTED_KEY, 'true');
                 setTimeout(() => {
                     localStorage.setItem(ROUNDS_STORAGE_KEY, '0');
                     setRoundsCompleted(0);
@@ -154,9 +163,12 @@ const MatchTheCards: React.FC = () => {
     };
 
     const handleCollectReward = () => {
-        if (!rewardEligible || rewardCollected) return;
+        if (!rewardEligible && !canCollect) return;
+        if (rewardCollected) return;
         localStorage.setItem(REWARD_FINISH_KEY, 'true');
+        localStorage.removeItem(REWARD_CAN_COLLECTED_KEY);
         setRewardCollected(true);
+        setCanCollect(false);
         audioManager.playSfx('/assets/audio/SFX/sfx_combined_ingredients.mp3', { volume: 0.85 });
     };
 
@@ -173,6 +185,15 @@ const MatchTheCards: React.FC = () => {
             <a className="back-menu-fixed" href="/game" aria-label="กลับไปเมนูเกม" onClick={handleBack}>
                 ← กลับเมนูเกม
             </a>
+            {canCollect && !rewardCollected && (
+                <button
+                    className="collect-reward-fixed"
+                    type="button"
+                    onClick={() => { setGameWon(true); setRewardEligible(true); }}
+                >
+                    🎁 เก็บรางวัล
+                </button>
+            )}
             <div className="match-cards-container">
                 <header className="match-cards-header">
                     <h1>เกมจับคู่อาหาร</h1>

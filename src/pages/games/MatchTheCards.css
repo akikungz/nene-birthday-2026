@@ -30,6 +30,37 @@
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
+.collect-reward-fixed {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 1200;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: #2a1402;
+    background: linear-gradient(135deg, #ff9f43, #ff6f00);
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    box-shadow: 0 8px 16px rgba(20, 8, 2, 0.22);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    animation: collectPulse 2s ease-in-out infinite;
+}
+
+.collect-reward-fixed:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(255, 159, 67, 0.4);
+}
+
+@keyframes collectPulse {
+    0%, 100% { box-shadow: 0 8px 16px rgba(20, 8, 2, 0.22); }
+    50% { box-shadow: 0 8px 24px rgba(255, 159, 67, 0.5); }
+}
+
 .back-menu-fixed:hover {
     transform: translateY(-1px);
     box-shadow: 0 10px 20px rgba(20, 8, 2, 0.28);
