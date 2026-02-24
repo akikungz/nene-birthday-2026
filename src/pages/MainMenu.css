@@ -235,6 +235,8 @@
     background: linear-gradient(135deg, #ff6b6b, #c0392b) !important;
     color: #fff !important;
     border-color: #a93226 !important;
+    font-size: clamp(14px, 2vw, 20px) !important;
+    font-weight: 800 !important;
 }
 
 .credit-card p {

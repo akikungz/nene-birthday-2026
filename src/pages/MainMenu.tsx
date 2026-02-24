@@ -147,6 +147,7 @@ const MainMenu: React.FC = () => {
                             window.location.reload();
                         }
                     }}>รีเซ็ตข้อมูลทั้งหมด</button>
+                    <br />
                     <button type="button" className="vanilla-btn settings-close-btn" onClick={() => setShowSettings(false)}>ปิด</button>
                 </div>
             </div>
