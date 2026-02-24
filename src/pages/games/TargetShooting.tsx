@@ -31,6 +31,7 @@ const baitImages = [
 const TIME_LIMIT_SECONDS = 2 * 60 + 22; // 142 seconds
 const REWARD_THRESHOLD_SCORE = 22;
 const rewardScoreStorageKey = "game_target_shooting_score";
+const REWARD_CAN_COLLECTED_KEY = 'game_target_shooting_can_collected';
 
 const TargetShooting: React.FC = () => {
     const navigate = useNavigate();
@@ -44,6 +45,7 @@ const TargetShooting: React.FC = () => {
     const [targets, setTargets] = useState<Target[]>([]);
     const [showResultOverlay, setShowResultOverlay] = useState(false);
     const [rewardCollected, setRewardCollected] = useState(false);
+    const [canCollect, setCanCollect] = useState(false);
     const [history, setHistory] = useState<{ score: number, date: string }[]>([]);
 
     // Cursor state
@@ -61,10 +63,18 @@ const TargetShooting: React.FC = () => {
     const zeroStartTimeRef = useRef<number | null>(null);
 
     useEffect(() => {
+        document.title = 'Mikotomi Maneneko Festival - Target Shooting';
         audioManager.initBgm('/assets/audio/BGM/bgm_target_shooting.mp3', { volume: 0.45 });
 
         setHighScore(parseInt(localStorage.getItem('game_ShootingGame_maxScore') || '0', 10));
-        setRewardCollected(localStorage.getItem('game_target_shooting_finish') === 'true');
+
+        const alreadyCollected = localStorage.getItem('game_target_shooting_finish') === 'true';
+        setRewardCollected(alreadyCollected);
+
+        // Mark as can-collect if player qualified but didn't collect
+        if (!alreadyCollected && localStorage.getItem(REWARD_CAN_COLLECTED_KEY) === 'true') {
+            setCanCollect(true);
+        }
 
         try {
             const raw = localStorage.getItem('game_ShootingGame_history');
@@ -211,7 +221,7 @@ const TargetShooting: React.FC = () => {
 
         if (finalScore > REWARD_THRESHOLD_SCORE || didPass) {
             audioManager.playSfx('/assets/audio/SFX/sfx_win_the_game.mp3', { volume: 0.9 });
-            if (didPass) localStorage.setItem('game_target_shooting_finish', 'true');
+            if (didPass) localStorage.setItem(REWARD_CAN_COLLECTED_KEY, 'true');
             setShowResultOverlay(true);
         }
     }, [highScore, history, stopAllTimers]);
@@ -291,7 +301,7 @@ const TargetShooting: React.FC = () => {
 
                 if (next > REWARD_THRESHOLD_SCORE) {
                     localStorage.setItem(rewardScoreStorageKey, String(next));
-                    localStorage.setItem('game_target_shooting_finish', 'true');
+                    localStorage.setItem(REWARD_CAN_COLLECTED_KEY, 'true');
                 }
 
                 spawnCountRef.current = Math.floor(next / 10) + 1;
@@ -322,7 +332,9 @@ const TargetShooting: React.FC = () => {
         e.stopPropagation();
         if (rewardCollected) return;
         localStorage.setItem('game_target_shooting_finish', 'true');
+        localStorage.removeItem(REWARD_CAN_COLLECTED_KEY);
         setRewardCollected(true);
+        setCanCollect(false);
         audioManager.playSfx('/assets/audio/SFX/sfx_combined_ingredients.mp3', { volume: 0.85 });
     };
 
@@ -400,6 +412,9 @@ const TargetShooting: React.FC = () => {
                             <div className="screen-card" onPointerDown={e => e.stopPropagation()}>
                                 <h2>เกมยิงเป้า</h2>
                                 <button onClick={() => setGameState('tutorial')}>เริ่มเกม</button>
+                                {canCollect && !rewardCollected && (
+                                    <button onClick={() => setShowResultOverlay(true)}>🎁 เก็บรางวัล</button>
+                                )}
                             </div>
                         </div>
                     )}
@@ -428,6 +443,9 @@ const TargetShooting: React.FC = () => {
                                 </ul>
 
                                 <button onClick={beginGame}>เล่นอีกครั้ง</button>
+                                {canCollect && !rewardCollected && (
+                                    <button onClick={() => setShowResultOverlay(true)}>🎁 เก็บรางวัล</button>
+                                )}
                             </div>
                         </div>
                     )}
