@@ -24,6 +24,7 @@ const MainMenu: React.FC = () => {
 
     const [bgmVolume, setBgmVolume] = useState(100);
     const [sfxVolume, setSfxVolume] = useState(100);
+    const [videoReady, setVideoReady] = useState(false);
 
     useEffect(() => {
         document.title = 'Mikotomi Maneneko Festival - Main Menu';
@@ -70,6 +71,12 @@ const MainMenu: React.FC = () => {
                 </div>
             )}
 
+            <img
+                className="menu-bg-fallback"
+                src="/assets/main_menu_background.png"
+                alt="พื้นหลังเมนูหลัก"
+                style={{ opacity: videoReady ? 0 : 1 }}
+            />
             <video
                 className="menu-bg-video"
                 autoPlay
@@ -78,6 +85,8 @@ const MainMenu: React.FC = () => {
                 playsInline
                 preload="auto"
                 aria-label="พื้นหลังเมนูหลักแบบเคลื่อนไหว"
+                style={{ opacity: videoReady ? 1 : 0 }}
+                onCanPlayThrough={() => setVideoReady(true)}
             >
                 <source src="/assets/main_menu_background_animated.mp4" type="video/mp4" />
             </video>
@@ -138,6 +147,7 @@ const MainMenu: React.FC = () => {
                             window.location.reload();
                         }
                     }}>รีเซ็ตข้อมูลทั้งหมด</button>
+                    <br />
                     <button type="button" className="vanilla-btn settings-close-btn" onClick={() => setShowSettings(false)}>ปิด</button>
                 </div>
             </div>
